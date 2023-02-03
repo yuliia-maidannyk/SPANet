@@ -176,6 +176,9 @@ def display_latex_table(results: Dict[str, Any], jet_limits: List[str], clusters
 
 def display_table(results: Dict[str, Any], jet_limits: List[str], clusters: List[str]):
     event_types = set(map(lambda x: x.split("/")[0], filter(lambda x: "/" in x, next(iter(results.values())))))
+    print("results.values: ", results.values())
+    print("event_types: ", event_types)
+
     for event_type in sorted(event_types):
         columns = defaultdict(list)
         for jet_limit in jet_limits:
