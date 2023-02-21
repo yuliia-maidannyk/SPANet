@@ -102,6 +102,9 @@ def mask_3(flat_data, size, index, value):
 
 @njit("void(float32[::1], int64, int64, int64, float32)")
 def mask_jet(data, num_partons, max_jets, index, value):
+    #print("\ndata: ",data)
+    #print("\nnum_partons: ",num_partons)
+    #print("\nmax_jets: ",max_jets)
     if num_partons == 1:
         mask_1(data, max_jets, index, value)
     elif num_partons == 2:
@@ -125,8 +128,9 @@ def compute_strides(num_partons, max_jets):
     strides = np.zeros(num_partons, dtype=np.int64)
     strides[-1] = 1
     for i in range(num_partons - 2, -1, -1):
-        strides[i] = strides[i + 1] * max_jets
+        strides[i] = strides[i + 1] * max_jets # max_jets = 15: strides = [...,15^2,15,1]
 
+    #print("\nstrides: ", strides)
     return strides
 
 
@@ -167,15 +171,21 @@ def maximal_prediction(predictions):
 
 @njit(TResult(TPrediction, TInt64[::1], TInt64))
 def extract_prediction(predictions, num_partons, max_jets):
+    #print("\nNow in prediction_selection.extract_prediction()...\n")
+    #print("\nnum_partons: ", num_partons) # always [3,1,2] but different # of times
+    #print("\nlen(num_partons): ", len(num_partons))
+    #print("\nmax_jets: ", max_jets) # 15
     float_negative_inf = -np.float32(np.inf)
     max_partons = num_partons.max()
     num_targets = len(predictions)
+    #print("\nnum_targets: ", num_targets) # weird but usually 3
 
     # Create copies of predictions for safety and calculate the output shapes
     strides = []
     for i in range(num_targets):
         strides.append(compute_strides(num_partons[i], max_jets))
 
+    #print("\nstrides: ",strides)
     # Fill up the prediction matrix
     # -2 : Not yet assigned
     # -1 : Masked value

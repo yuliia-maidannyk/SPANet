@@ -27,47 +27,65 @@ class JetReconstructionTraining(JetReconstructionNetwork):
 
         self.event_particle_names = list(self.training_dataset.event_info.product_particles.keys())
         self.product_particle_names = {
-            particle: self.training_dataset.event_info.product_particles[particle][0]
+            particle: self.training_dataset.event_info.product_particles[particle][0] # why [0] only?
             for particle in self.event_particle_names
         }
+        print(self.event_particle_names, self.product_particle_names)
 
     def particle_symmetric_loss(self, assignment: Tensor, detection: Tensor, target: Tensor, mask: Tensor) -> Tensor:
+        # Just gives CE loss for each particle t1,t2,H. Gets called 3 times
+        print("\nComputing cross entropy loss...")
         assignment_loss = assignment_cross_entropy_loss(assignment, target, mask, self.options.focal_gamma)
         detection_loss = F.binary_cross_entropy_with_logits(detection, mask.float(), reduction='none')
 
+        #b = torch.stack((
+            #self.options.assignment_loss_scale * assignment_loss,
+            #self.options.detection_loss_scale * detection_loss))
+        #print(b) (2, BATCH_SIZE)
         return torch.stack((
             self.options.assignment_loss_scale * assignment_loss,
-            self.options.detection_loss_scale * detection_loss
+            self.options.detection_loss_scale * detection_loss # all zeros
         ))
 
     def compute_symmetric_losses(self, assignments: List[Tensor], detections: List[Tensor], targets):
+        print("\nNow computing symmetric losses...")
         symmetric_losses = []
 
         # TODO think of a way to avoid this memory transfer but keep permutation indices synced with checkpoint
         # Compute a separate loss term for every possible target permutation.
         for permutation in self.event_permutation_tensor.cpu().numpy():
-
+            # Gets called once
+            #print("permutation: ", permutation) [0 1 2]
             # Find the assignment loss for each particle in this permutation.
             current_permutation_loss = tuple(
                 self.particle_symmetric_loss(assignment, detection, target, mask)
                 for assignment, detection, (target, mask)
                 in zip(assignments, detections, targets[permutation])
             )
+            # current_permutation_loss is 3 tensors of 64 assignment losses and 64 detection losses
+            # (3,[2,64]) where 64 is num_batches
+            #print("current_permutation_loss: ",current_permutation_loss)
 
             # The loss for a single permutation is the sum of particle losses.
             symmetric_losses.append(torch.stack(current_permutation_loss))
 
-        # Shape: (NUM_PERMUTATIONS, NUM_PARTICLES, 2, BATCH_SIZE)
+        # Shape: (NUM_PERMUTATIONS, NUM_PARTICLES, 2, BATCH_SIZE) --- (1,3,2,64)
         return torch.stack(symmetric_losses)
 
     def combine_symmetric_losses(self, symmetric_losses: Tensor) -> Tuple[Tensor, Tensor]:
+        print("\nNow combining symmetric losses...")
         # Default option is to find the minimum loss term of the symmetric options.
         # We also store which permutation we used to achieve that minimal loss.
         # combined_loss, _ = symmetric_losses.min(0)
-        total_symmetric_loss = symmetric_losses.sum((1, 2))
+        # symmetric_losses are size (1,3,2,64)
+        total_symmetric_loss = symmetric_losses.sum((1, 2)) # torch.Size([1, 64]) for 1 permutation and 64 in a batch
         index = total_symmetric_loss.argmin(0)
 
+        # This is minimum -- torch.Size([3, 2, 64])
         combined_loss = torch.gather(symmetric_losses, 0, index.expand_as(symmetric_losses))[0]
+        #print("symmetric_losses: ",symmetric_losses)
+        #print("combined_loss: ",combined_loss)
+        # Here combined_loss and symmetric_losses are the same except for size because no event-level permutations allowed
 
         # Simple average of all losses as a baseline.
         if self.options.combine_pair_loss.lower() == "mean":
@@ -87,14 +105,20 @@ class JetReconstructionTraining(JetReconstructionNetwork):
         detections: List[Tensor],
         targets: Tuple[Tuple[Tensor, Tensor], ...]
     ) -> Tuple[Tensor, Tensor]:
+        print("\nNow in training.symmetric_losses...\n")
         # We are only going to look at a single prediction points on the distribution for more stable loss calculation
         # We multiply the softmax values by the size of the permutation group to make every target the same
         # regardless of the number of sub-jets in each target particle
         assignments = [prediction + torch.log(torch.scalar_tensor(decoder.num_targets))
                        for prediction, decoder in zip(assignments, self.branch_decoders)]
 
+        #print(np.shape(assignments[0].cpu().detach().numpy())) SHAPE: (64, 15, 15, 15) -- (BATCH_SIZE, MAX_JETS, MAX_JETS, MAX_JETS)
+
         # Convert the targets into a numpy array of tensors so we can use fancy indexing from numpy
-        targets = numpy_tensor_array(targets)
+        targets = numpy_tensor_array(targets) # 3 targets
+        #print("\ntargets[0]: ", targets[0])
+        #print("\ntargets[1]: ", targets[1])
+        #print("targets[2] shape: ", np.shape(targets[2]))
 
         # Compute the loss on every valid permutation of the targets
         symmetric_losses = self.compute_symmetric_losses(assignments, detections, targets)
@@ -201,11 +225,12 @@ class JetReconstructionTraining(JetReconstructionNetwork):
         return total_loss + classification_terms
 
     def training_step(self, batch: Batch, batch_nb: int) -> Dict[str, Tensor]:
+        print("\nNow in training.training_step...\n")
         # ===================================================================================================
         # Network Forward Pass
         # ---------------------------------------------------------------------------------------------------
         outputs = self.forward(batch.sources)
-
+        print("\nBack in training.training_step...\n")
         # ===================================================================================================
         # Initial log-likelihood loss for classification task
         # ---------------------------------------------------------------------------------------------------

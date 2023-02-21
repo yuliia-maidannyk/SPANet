@@ -43,31 +43,52 @@ class SymmetricEvaluator:
         return [array_list[index] for index in permutation]
 
     def sort_outputs(self, predictions, target_jets, target_masks):
+        print("\nSorting outputs...")
+        # Create copies first
         predictions = [np.copy(p) for p in predictions]
         target_jets = [np.copy(p) for p in target_jets]
 
         # Sort all of the targets and predictions to avoid any intra-particle symmetries
         for i, (_, particle_group) in enumerate(self.target_groups.items()):
+            # Example of PermutationGroup for t1: (0) q1, (1) q2, (2) b -- PermutationGroup([(2)(0 1)])
+            # particle_group is PermutationGroup([(2)(0 1)]) for t1 or PG([(0)]) for t2 or PG([(0 1)]) for h
+            
             for orbit in particle_group.orbits():
                 orbit = tuple(sorted(orbit))
+
+                """ >>> from sympy.combinatorics import Permutation, PermutationGroup
+                >>> a = Permutation(1, 5)(2, 3)(4, 0, 6)
+                >>> b = Permutation(1, 5)(3, 4)(2, 6, 0)
+                >>> G = PermutationGroup([a, b])
+                >>> G.orbits()
+                [{0, 2, 3, 4, 6}, {1, 5}]
+                """
 
                 target_jets[i][:, orbit] = np.sort(target_jets[i][:, orbit], axis=1)
                 predictions[i][:, orbit] = np.sort(predictions[i][:, orbit], axis=1)
 
+
         return predictions, target_jets, target_masks
 
     def particle_count_info(self, target_masks):
+        print("\nCalculating particle count info...")
+    # gets executed lines+2 times
         target_masks = np.array(target_masks)
 
         # Count the total number of particles for simple filtering
         total_particle_counts = target_masks.sum(0)
+        # len(total_particle_counts) is the same as number of events with n jets
+        # e.g. ==4 jets is length 2493 but ==11 jets is length 23
 
-        # Count the number of particles present in each cluster
+        # Count the number of particles present in each cluster (3 clusters for each jet number)
         particle_counts = [target_masks[list(cluster_indices)].sum(0)
                            for _, _, cluster_indices in self.clusters]
+        # Length of each cluster is very different. Particle counts gets called lines+2 times
 
         # Find the maximum number of particles in each cluster
         particle_max = [len(cluster_indices) for _, _, cluster_indices in self.clusters]
+        # particle_max is basically always [1,1,1] -- we can have 0 particles of some type or 
+        # 1 particle of some type -- max is usually 1
 
         return total_particle_counts, particle_counts, particle_max
 
@@ -128,19 +149,21 @@ class SymmetricEvaluator:
             return accurate_event.mean()
 
     def full_report(self, predictions, target_jets, target_masks):
+        print("\nNow doing full_report() in dataset.evaluator...")
         predictions, target_jets, target_masks = self.sort_outputs(predictions, target_jets, target_masks)
 
         total_particle_counts, particle_counts, particle_max = self.particle_count_info(target_masks)
         particle_ranges = [list(range(-1, pmax + 1)) for pmax in particle_max]
+        #print("\n",particle_ranges) [[-1,0,1], [-1,0,1], [-1,0,1]]
 
         full_results = []
 
-        for event_counts in product(*particle_ranges):
+        for event_counts in product(*particle_ranges): # (-1,0,1) combinations
             # Filter all events to make sure they at least have a particle there
-            event_mask = total_particle_counts >= 0
+            event_mask = total_particle_counts >= 0 # the maximum of this is 2-3 depending on the "batch" i.e. this counts t1,t2,h
 
             # Filter to have the correct cluster counts
-            for particle_count, event_count in zip(particle_counts, event_counts):
+            for particle_count, event_count in zip(particle_counts, event_counts): # np.shape(particle_count) == length of testing data and is zeros and ones
                 if event_count >= 0:
                     event_mask = event_mask & (particle_count == event_count)
 
@@ -153,7 +176,8 @@ class SymmetricEvaluator:
             masked_target_jets = [p[event_mask] for p in target_jets]
             masked_target_masks = [p[event_mask] for p in target_masks]
 
-            # Compute purity values
+            # Compute purity values for each jet bin (==4,==5 etc) for each event particle (ttH)
+            print("\nCalculating purities...")
             masked_event_purity = self.event_purity(masked_predictions, masked_target_jets, masked_target_masks)
             masked_cluster_purity = self.cluster_purity(masked_predictions, masked_target_jets, masked_target_masks)
 
@@ -164,6 +188,7 @@ class SymmetricEvaluator:
         return full_results
 
     def full_report_string(self, predictions, target_jets, target_masks, prefix: str = ""):
+        print("\nNow in full_report_string() in dataset.evaluator...")
         full_purities = {}
 
         report = self.full_report(predictions, target_jets, target_masks)
@@ -174,6 +199,7 @@ class SymmetricEvaluator:
                 "{}{}/event_purity": event_purity,
                 "{}{}/event_proportion": mask_proportion
             }
+            #print("event_purity: ", event_purity)
 
             for mask_count, (cluster_name, _, cluster_purity) in zip(event_mask, particle_purity):
                 mask_count = "*" if mask_count < 0 else str(mask_count)

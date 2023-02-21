@@ -15,7 +15,7 @@ from spanet.network.learning_rate_schedules import get_cosine_with_hard_restarts
 class JetReconstructionBase(pl.LightningModule):
     def __init__(self, options: Options):
         super(JetReconstructionBase, self).__init__()
-
+        print("\nNow in base.init...\n")
         self.save_hyperparameters(options)
         self.options = options
 

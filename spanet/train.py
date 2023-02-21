@@ -153,7 +153,7 @@ def main(
         ModelCheckpoint(
             verbose=options.verbose_output,
             monitor='validation_accuracy',
-            save_top_k=3,
+            save_top_k=3, # CHANGE FOR MORE EPOCHS SAVED
             mode='max',
             save_last=True
         ),

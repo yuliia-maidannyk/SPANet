@@ -67,7 +67,7 @@ class JetReconstructionDataset(Dataset):
             Whether to allow training on partial events, not just complete events.
         """
         super(JetReconstructionDataset, self).__init__()
-
+        print("\nNow in dataset.init...\n")
         self.data_file = data_file
         self.event_info: EventInfo = event_info
 

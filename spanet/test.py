@@ -176,8 +176,8 @@ def display_latex_table(results: Dict[str, Any], jet_limits: List[str], clusters
 
 def display_table(results: Dict[str, Any], jet_limits: List[str], clusters: List[str]):
     event_types = set(map(lambda x: x.split("/")[0], filter(lambda x: "/" in x, next(iter(results.values())))))
-    print("results.values: ", results.values())
-    print("event_types: ", event_types)
+    #print("\n\nresults.values: ", results.values())
+    #print("\nevent_types: ", event_types)
 
     for event_type in sorted(event_types):
         columns = defaultdict(list)
@@ -229,7 +229,7 @@ def main(
     test_file: Optional[str],
     event_file: Optional[str],
     batch_size: Optional[int],
-    lines: int,
+    lines: int, # CHANGE FROM ==2 TO SEE MORE LINES IN THE TABLE
     gpu: bool,
     latex: bool
 ):
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument("-bs", "--batch_size", type=int, default=None,
                         help="Replace the batch size in the options with a custom size.")
 
-    parser.add_argument("-l", "--lines", type=int, default=2,
+    parser.add_argument("-l", "--lines", type=int, default=8,
                         help="Number of equality lines to print for every event. "
                              "Will group other events into a >= group.")
 

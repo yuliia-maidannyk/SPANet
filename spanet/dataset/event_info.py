@@ -52,7 +52,7 @@ class EventInfo:
         regressions: FeynmanDict[str, List[RegressionInfo]],
         classifications: FeynmanDict[str, List[ClassificationInfo]]
     ):
-
+        print("Now in event_info.init...")
         self.input_types = input_types
         self.input_names = list(input_types.keys())
         self.input_features = input_features

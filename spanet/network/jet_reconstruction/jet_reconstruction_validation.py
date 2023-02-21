@@ -13,6 +13,7 @@ from spanet.network.jet_reconstruction.jet_reconstruction_network import JetReco
 class JetReconstructionValidation(JetReconstructionNetwork):
     def __init__(self, options: Options, torch_script: bool = False):
         super(JetReconstructionValidation, self).__init__(options, torch_script)
+        print("\nNow in validation.__init__...")
         self.evaluator = SymmetricEvaluator(self.training_dataset.event_info)
 
     @property
@@ -32,6 +33,7 @@ class JetReconstructionValidation(JetReconstructionNetwork):
         }
 
     def compute_metrics(self, jet_predictions, particle_scores, stacked_targets, stacked_masks):
+        print("\nNow in validation.compute_metrics()...")
         event_permutation_group = self.event_permutation_tensor.cpu().numpy()
         num_permutations = len(event_permutation_group)
         num_targets, batch_size = stacked_masks.shape
@@ -83,13 +85,16 @@ class JetReconstructionValidation(JetReconstructionNetwork):
         # Compute the sum accuracy of all complete events to act as our target for
         # early stopping, hyperparameter optimization, learning rate scheduling, etc.
         metrics["validation_accuracy"] = metrics[f"jet/accuracy_{num_targets}_of_{num_targets}"]
-
+        #print(metrics)
         return metrics
 
     def validation_step(self, batch, batch_idx) -> Dict[str, np.float32]:
+        print("\nNow in validation.validation_step()...")
         # Run the base prediction step
         sources, num_jets, targets, regression_targets, classification_targets = batch
         jet_predictions, particle_scores, regressions, classifications = self.predict(sources)
+
+        # jet_predictions is assignments and particle_scores is detections
 
         batch_size = num_jets.shape[0]
         num_targets = len(targets)
@@ -114,8 +119,11 @@ class JetReconstructionValidation(JetReconstructionNetwork):
         metrics = self.evaluator.full_report_string(jet_predictions, stacked_targets, stacked_masks, prefix="Purity/")
 
         # Apply permutation groups for each target
+        #print("\nApplying permutation groups for each target...")
         for target, prediction, decoder in zip(stacked_targets, jet_predictions, self.branch_decoders):
+            #print("\ntarget, prediction: ", target, prediction)
             for indices in decoder.permutation_indices:
+                #print("\nindices in decoder.permutation_indices: ", indices)
                 if len(indices) > 1:
                     prediction[:, indices] = np.sort(prediction[:, indices])
                     target[:, indices] = np.sort(target[:, indices])
@@ -156,4 +164,5 @@ class JetReconstructionValidation(JetReconstructionNetwork):
                 self.logger.experiment.add_histogram(name, parameter)
 
     def test_step(self, batch, batch_idx):
+        print("\nNow in validation.test_step()...")
         return self.validation_step(batch, batch_idx)

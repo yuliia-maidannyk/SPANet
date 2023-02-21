@@ -74,6 +74,7 @@ class SymmetricAttentionFull(SymmetricAttentionBase):
         output : [T, T, ...]
             Prediction logits for this particle.
         """
+        print("Doing full symmetric attention...")
 
         x = x.transpose(0, 1)
 

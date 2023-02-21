@@ -63,11 +63,15 @@ class SymmetricAttentionSplit(SymmetricAttentionBase):
 
     def make_contraction(self):
         input_index_names = np.array(list(self.INPUT_INDEX_NAMES))
+        #print("\n\ninput_index_names: ", input_index_names)
 
         operations = map(lambda x: f"{x}bi", input_index_names)
         operations = ','.join(islice(operations, self.degree))
+        #print("\noperations: ", operations)
 
         result = f"->b{''.join(input_index_names[:self.degree])}"
+        #print("\nresult: ", result)
+        #print("\noperations+result: ", operations + result)
 
         return operations + result
 
@@ -90,6 +94,7 @@ class SymmetricAttentionSplit(SymmetricAttentionBase):
         output : [T, T, ...]
             Prediction logits for this particle.
         """
+        print("Doing split symmetric attention...")
         # ---------------------------------------------------------
         # Construct the transformed attention vectors for each jet.
         # ys: [[T, B, D], ...]
@@ -111,9 +116,13 @@ class SymmetricAttentionSplit(SymmetricAttentionBase):
             y = self.masking(y, sequence_mask)
 
             # Accumulate vectors into stack for each daughter of this particle.
-            daughter_vectors.append(daughter_vector)
-            ys.append(y)
-
+            # There will be 3 daughter vectors and 3 ys for ttH events
+            daughter_vectors.append(daughter_vector) # [ torch.Size([64, 32]), ., . ]
+            ys.append(y)  #[ torch.Size([15, 64, 32]), ]
+            # Assignment and detection
+            #print(np.shape(daughter_vector))
+            #print(np.shape(y))
+        #print(len(ys))
         # -------------------------------------------------------
         # Construct the output logits via general self-attention.
         # output: [T, T, ...]
@@ -121,11 +130,33 @@ class SymmetricAttentionSplit(SymmetricAttentionBase):
         output = torch.einsum(self.contraction_operation, *ys)
         output = output / self.weights_scale
 
+        # Hadronic top t1->q1q2b
+        # input_index_names:  ['x' 'y' 'z' 'w' 'u' 'v']
+        # operations:  xbi,ybi,zbi
+        # result:  ->bxyz
+        # operations+result:  xbi,ybi,zbi->bxyz
+
+        # Leptonic top t2->b
+        # input_index_names:  ['x' 'y' 'z' 'w' 'u' 'v']
+        # operations:  xbi
+        # result:  ->bx
+        # operations+result:  xbi->bx
+
+        # H->b1b2
+        # input_index_names:  ['x' 'y' 'z' 'w' 'u' 'v']
+        # operations:  xbi,ybi
+        # result:  ->bxy
+        # operations+result:  xbi,ybi->bxy
+
+        #print("daughter_vectors shape: ", np.shape(daughter_vectors[0])) 
+        #print("y (transformed attention vector for each jet) shape: ", np.shape(ys[0]))
+
         # ---------------------------------------------------
         # Symmetrize the output according to group structure.
         # output: [T, T, ...]
         # ---------------------------------------------------
         # TODO Perhaps make the encoder layers match in the symmetric dimensions.
-        output = self.symmetrize_tensor(output)
+        output = self.symmetrize_tensor(output) # torch.Size([64, 15, 15, 15])
+        #print("output shape: ", np.shape(output))
 
         return output, daughter_vectors
