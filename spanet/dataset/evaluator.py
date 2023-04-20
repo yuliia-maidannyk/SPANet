@@ -113,14 +113,16 @@ class SymmetricEvaluator:
 
                 best_accuracy = np.maximum(accuracy, best_accuracy)
 
+            #print("best cluster accuracy: ", best_accuracy)
             # Get rid of pesky warnings
             total_particles = cluster_target_masks.sum()
             if total_particles > 0:
                 cluster_accuracy = best_accuracy.sum() / cluster_target_masks.sum()
             else:
                 cluster_accuracy = np.nan
-
+            
             results.append((cluster_name, cluster_particles, cluster_accuracy))
+            #print("cluster purity results: ", results[-1])
 
         return results
 
@@ -137,12 +139,17 @@ class SymmetricEvaluator:
                                  for p, t, m
                                  in zip(predictions, permuted_targets, permuted_mask)])
             accuracy = accuracy.sum(0)
-
             best_accuracy = np.maximum(accuracy, best_accuracy)
+        #print("best accuracy: ", best_accuracy)
 
         # Event accuracy is defined as getting all possible particles in event
         num_particles_in_event = target_masks.sum(0)
+        #print("num_particles_in_event: ", num_particles_in_event)
         accurate_event = best_accuracy == num_particles_in_event
+        #print("accurate_event: ", accurate_event)
+
+        #print("len(best_accuracy): ", len(best_accuracy))
+        print(len(best_accuracy))
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
@@ -175,16 +182,17 @@ class SymmetricEvaluator:
             masked_predictions = [p[event_mask] for p in predictions]
             masked_target_jets = [p[event_mask] for p in target_jets]
             masked_target_masks = [p[event_mask] for p in target_masks]
-
+            #print("event_count: ", event_count)
             # Compute purity values for each jet bin (==4,==5 etc) for each event particle (ttH)
-            print("\nCalculating purities...")
+            #print("\nCalculating purities...")
             masked_event_purity = self.event_purity(masked_predictions, masked_target_jets, masked_target_masks)
+            #print("masked_event_purity", masked_event_purity)
             masked_cluster_purity = self.cluster_purity(masked_predictions, masked_target_jets, masked_target_masks)
+            #print("masked_cluster_purity", masked_cluster_purity)
 
             mask_proportion = event_mask.mean()
-
+            #print("mask_proportion: ", mask_proportion)
             full_results.append((event_counts, mask_proportion, masked_event_purity, masked_cluster_purity))
-
         return full_results
 
     def full_report_string(self, predictions, target_jets, target_masks, prefix: str = ""):
@@ -192,6 +200,7 @@ class SymmetricEvaluator:
         full_purities = {}
 
         report = self.full_report(predictions, target_jets, target_masks)
+
         for event_mask, mask_proportion, event_purity, particle_purity in report:
 
             event_mask_name = ""
@@ -204,6 +213,7 @@ class SymmetricEvaluator:
             for mask_count, (cluster_name, _, cluster_purity) in zip(event_mask, particle_purity):
                 mask_count = "*" if mask_count < 0 else str(mask_count)
                 event_mask_name = event_mask_name + mask_count + cluster_name
+                print(event_mask_name)
                 purity["{}{}/{}_purity".format("{}", "{}", cluster_name)] = cluster_purity
 
             purity = {

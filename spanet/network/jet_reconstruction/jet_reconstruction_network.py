@@ -150,7 +150,9 @@ class JetReconstructionNetwork(JetReconstructionBase):
             print("\nassignments[0] after extract_prediction(): ", np.shape(assignments[0]))
             print("\nassignments[1] after extract_prediction(): ", np.shape(assignments[1]))
             print("\nassignments[2] after extract_prediction(): ", np.shape(assignments[2]))   
-        
+
+            print(assignments[0])
+
             # Convert detection logits into probabilities and move to CPU.
             detections = np.stack([
                 torch.sigmoid(detection).cpu().numpy()

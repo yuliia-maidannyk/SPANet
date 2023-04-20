@@ -204,10 +204,15 @@ def extract_prediction(predictions, num_partons, max_jets):
         for i in range(num_partons[best_prediction]):
             results[best_prediction, i] = best_jets[i]
 
+        # put -inf in place of prediction for event particle 
         predictions[best_prediction][:] = float_negative_inf
         for i in range(num_targets):
             for jet in best_jets:
+                # jet is a best jet index
+                # predictions[i] has shape (3375,), (225,) or (15,) for t1, H, t2
+                # num_partons[i] is 1,2 or 3
                 mask_jet(predictions[i], num_partons[i], max_jets, jet, float_negative_inf)
+                # puts -inf in place of jet index
 
     return results
 

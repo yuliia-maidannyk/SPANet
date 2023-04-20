@@ -65,7 +65,6 @@ def main(log_directory: str,
          event_file: Optional[str],
          batch_size: Optional[int],
          gpu: bool):
-    print("\nI'm here\n")
     model = load_model(log_directory, test_file, event_file, batch_size, gpu)
 
     evaluation = evaluate_on_test_dataset(model)

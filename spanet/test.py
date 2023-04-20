@@ -265,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument("-bs", "--batch_size", type=int, default=None,
                         help="Replace the batch size in the options with a custom size.")
 
-    parser.add_argument("-l", "--lines", type=int, default=8,
+    parser.add_argument("-l", "--lines", type=int, default=3,
                         help="Number of equality lines to print for every event. "
                              "Will group other events into a >= group.")
 

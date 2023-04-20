@@ -234,11 +234,14 @@ class JetReconstructionTraining(JetReconstructionNetwork):
         # ===================================================================================================
         # Initial log-likelihood loss for classification task
         # ---------------------------------------------------------------------------------------------------
+        #print("assignment shape before: ", np.shape((outputs.assignments)[0]))
         symmetric_losses, best_indices = self.symmetric_losses(
             outputs.assignments,
             outputs.detections,
             batch.assignment_targets
         )
+        #print("best indices: ", np.shape(best_indices))
+        #print(best_indices)
 
         # Construct the newly permuted masks based on the minimal permutation found during NLL loss.
         permutations = self.event_permutation_tensor[best_indices].T
