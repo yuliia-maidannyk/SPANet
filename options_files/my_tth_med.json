@@ -1,11 +1,11 @@
 {
-    "hidden_dim": 128,
+    "hidden_dim": 64,
     "transformer_dim_scale": 2.0,
-    "initial_embedding_dim": 16,
+    "initial_embedding_dim": 32,
     "position_embedding_dim": 32,
 
-    "num_embedding_layers": 10,
-    "num_encoder_layers": 6,
+    "num_embedding_layers": 4,
+    "num_encoder_layers": 4,
     "num_branch_embedding_layers": 5,
     "num_branch_encoder_layers": 5,
     "num_jet_embedding_layers": 0,
@@ -15,7 +15,7 @@
     "num_classification_layers": 4,
 
     "split_symmetric_attention": true,
-    "num_attention_heads": 4,
+    "num_attention_heads": 8,
     "transformer_activation": "gelu",
 
     "linear_block_type": "GRU",
@@ -45,7 +45,7 @@
     "combine_pair_loss": "min",
     "optimizer": "AdamW",
     "focal_gamma": 1.0,
-    "learning_rate": 0.001,
+    "learning_rate": 0.0001,
     "learning_rate_cycles": 1,
     "learning_rate_warmup_epochs": 1.0,
 
@@ -59,7 +59,7 @@
     "gradient_clip": 0.0,
     "dropout": 0.2,
 
-    "epochs": 15,
+    "epochs": 20,
     "num_gpu": 1,
     "verbose_output": true
 }
