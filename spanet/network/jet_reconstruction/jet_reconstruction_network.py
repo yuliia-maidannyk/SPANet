@@ -133,15 +133,11 @@ class JetReconstructionNetwork(JetReconstructionBase):
     def predict(self, sources: Tuple[Source, ...]) -> Predictions:
         print("\nNow in network.predict...\n")
         with torch.no_grad():
-<<<<<<< HEAD
             assignments, detections, regressions, classifications = self.forward(sources)
             print("\nassignments[0] before extract_prediction(): ", np.shape(assignments[0]))
             print("\nassignments[1] before extract_prediction(): ", np.shape(assignments[1]))
             print("\nassignments[2] before extract_prediction(): ", np.shape(assignments[2]))
             # Assignments now have shapes [64,15,15,15], [64,15] and [64,15,15] for t1,t2,H
-=======
-            outputs = self.forward(sources)
->>>>>>> 4a4b8027d1f5daf14ccc749af0bf449bca7b129f
 
             # Extract assignment probabilities and find the least conflicting assignment. 
             # Gets called 64 times
