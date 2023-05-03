@@ -125,6 +125,7 @@ class JetReconstructionNetwork(JetReconstructionBase):
         return Outputs(
             assignments,
             detections,
+            encoded_vectors,
             regressions,
             classifications
         )
@@ -132,17 +133,21 @@ class JetReconstructionNetwork(JetReconstructionBase):
     def predict(self, sources: Tuple[Source, ...]) -> Predictions:
         print("\nNow in network.predict...\n")
         with torch.no_grad():
+<<<<<<< HEAD
             assignments, detections, regressions, classifications = self.forward(sources)
             print("\nassignments[0] before extract_prediction(): ", np.shape(assignments[0]))
             print("\nassignments[1] before extract_prediction(): ", np.shape(assignments[1]))
             print("\nassignments[2] before extract_prediction(): ", np.shape(assignments[2]))
             # Assignments now have shapes [64,15,15,15], [64,15] and [64,15,15] for t1,t2,H
+=======
+            outputs = self.forward(sources)
+>>>>>>> 4a4b8027d1f5daf14ccc749af0bf449bca7b129f
 
             # Extract assignment probabilities and find the least conflicting assignment. 
             # Gets called 64 times
             assignments = extract_predictions([
                 np.nan_to_num(assignment.detach().cpu().numpy(), -np.inf)
-                for assignment in assignments
+                for assignment in outputs.assignments
             ])
 
             # Assignments now have shapes [64,3], [64,1] and [64,2] for t1,t2,H
@@ -156,18 +161,18 @@ class JetReconstructionNetwork(JetReconstructionBase):
             # Convert detection logits into probabilities and move to CPU.
             detections = np.stack([
                 torch.sigmoid(detection).cpu().numpy()
-                for detection in detections
+                for detection in outputs.detections
             ])
 
             # Move regressions to CPU and away from torch.
             regressions = {
                 key: value.cpu().numpy()
-                for key, value in regressions.items()
+                for key, value in outputs.regressions.items()
             }
 
             classifications = {
                 key: value.cpu().argmax(1).numpy()
-                for key, value in classifications.items()
+                for key, value in outputs.classifications.items()
             }
 
         return Predictions(
@@ -182,7 +187,7 @@ class JetReconstructionNetwork(JetReconstructionBase):
         with torch.no_grad():
             assignments = [
                 np.nan_to_num(assignment.detach().cpu().numpy(), -np.inf)
-                for assignment in self.forward(sources)[0]
+                for assignment in self.forward(sources).assignments
             ]
 
         # Find the optimal selection of jets from the output distributions.
