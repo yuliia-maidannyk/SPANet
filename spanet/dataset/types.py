@@ -124,6 +124,7 @@ class SpecialKey(str, Enum):
     Regressions = "REGRESSIONS"
     Permutations = "PERMUTATIONS"
     Classifications = "CLASSIFICATIONS"
+    Embeddings = "EMBEDDINGS"
 
 
 class Source(NamedTuple):
@@ -158,6 +159,7 @@ class Batch(NamedTuple):
 class Outputs(NamedTuple):
     assignments: List[Tensor]
     detections: List[Tensor]
+    vectors: Dict[str, Tensor]
     regressions: Dict[str, Tensor]
     classifications: Dict[str, Tensor]
 
