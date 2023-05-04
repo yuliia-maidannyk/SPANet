@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc11-opt/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/cvmfs/sft.cern.ch/lcg/releases/Python/3.9.12-9a1bc/x86_64-centos7-gcc11-opt/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/eos/home-y/ymaidann/eth_project/Spanet_project/SPANet/spanet/train.py", line 265, in <module>
+    main(**parser.parse_args().__dict__)
+  File "/eos/home-y/ymaidann/eth_project/Spanet_project/SPANet/spanet/train.py", line 173, in main
+    trainer = pl.Trainer(logger=logger,
+  File "/cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/lib/python3.9/site-packages/pytorch_lightning/utilities/argparse.py", line 340, in insert_env_defaults
+    return fn(self, **kwargs)
+  File "/cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 414, in __init__
+    self._accelerator_connector = AcceleratorConnector(
+  File "/cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/lib/python3.9/site-packages/pytorch_lightning/trainer/connectors/accelerator_connector.py", line 206, in __init__
+    self._accelerator_flag = self._choose_gpu_accelerator_backend()
+  File "/cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/lib/python3.9/site-packages/pytorch_lightning/trainer/connectors/accelerator_connector.py", line 512, in _choose_gpu_accelerator_backend
+    raise MisconfigurationException("No supported gpu backend found!")
+lightning_lite.utilities.exceptions.MisconfigurationException: No supported gpu backend found!

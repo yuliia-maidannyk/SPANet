@@ -1,0 +1,5 @@
+CentOS Linux release 7.9.2009 (Core) 
+Starting environment
+/eos/user/y/ymaidann/eth_project/Spanet_project/SPANet
+Training
+python -m spanet.train -of options_files/my_tth_shallow.json --epochs 1 --gpus 1
