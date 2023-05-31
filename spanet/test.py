@@ -231,9 +231,10 @@ def main(
     batch_size: Optional[int],
     lines: int, # CHANGE FROM ==2 TO SEE MORE LINES IN THE TABLE
     gpu: bool,
-    latex: bool
+    latex: bool,
+    checkpoint: Optional[str]
 ):
-    model = load_model(log_directory, test_file, event_file, batch_size, gpu)
+    model = load_model(log_directory, test_file, event_file, batch_size, gpu, checkpoint)
     evaluation = evaluate_on_test_dataset(model)
 
     # Flatten predictions
@@ -274,6 +275,10 @@ if __name__ == '__main__':
 
     parser.add_argument("-tex", "--latex", action="store_true",
                         help="Output a latex table.")
+    
+    parser.add_argument("-ckpt", "--checkpoint", type=str, default=None,
+                        help="Replace checkpoint with best validation accuracy with a custom checkpoint. "
+                             "Give filename relative to log_directory/checkpoints/")
 
     arguments = parser.parse_args()
     main(**arguments.__dict__)
