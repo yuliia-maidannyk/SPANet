@@ -45,34 +45,34 @@ def mask_3(flat_data, size, index, value):
     data[:, :, index] = value
 
 
-# @njit("void(float32[::1], int64, int64, float32)")
-# def mask_4(flat_data, size, index, value):
-#     data = flat_data.reshape((size, size, size, size))
-#     data[index, :, :, :] = value
-#     data[:, index, :, :] = value
-#     data[:, :, index, :] = value
-#     data[:, :, :, index] = value
+@njit("void(float32[::1], int64, int64, float32)")
+def mask_4(flat_data, size, index, value): 
+    data = flat_data.reshape((size, size, size, size))
+    data[index, :, :, :] = value
+    data[:, index, :, :] = value
+    data[:, :, index, :] = value
+    data[:, :, :, index] = value
 
 
-# @njit("void(float32[::1], int64, int64, float32)")
-# def mask_5(flat_data, size, index, value):
-#     data = flat_data.reshape((size, size, size, size, size))
-#     data[index, :, :, :, :] = value
-#     data[:, index, :, :, :] = value
-#     data[:, :, index, :, :] = value
-#     data[:, :, :, index, :] = value
-#     data[:, :, :, :, index] = value
+@njit("void(float32[::1], int64, int64, float32)")
+def mask_5(flat_data, size, index, value):
+    data = flat_data.reshape((size, size, size, size, size))
+    data[index, :, :, :, :] = value
+    data[:, index, :, :, :] = value
+    data[:, :, index, :, :] = value
+    data[:, :, :, index, :] = value
+    data[:, :, :, :, index] = value
 #
 #
-# @njit("void(float32[::1], int64, int64, float32)")
-# def mask_6(flat_data, size, index, value):
-#     data = flat_data.reshape((size, size, size, size, size, size))
-#     data[index, :, :, :, :, :] = value
-#     data[:, index, :, :, :, :] = value
-#     data[:, :, index, :, :, :] = value
-#     data[:, :, :, index, :, :] = value
-#     data[:, :, :, :, index, :] = value
-#     data[:, :, :, :, :, index] = value
+@njit("void(float32[::1], int64, int64, float32)")
+def mask_6(flat_data, size, index, value):
+    data = flat_data.reshape((size, size, size, size, size, size))
+    data[index, :, :, :, :, :] = value
+    data[:, index, :, :, :, :] = value
+    data[:, :, index, :, :, :] = value
+    data[:, :, :, index, :, :] = value
+    data[:, :, :, :, index, :] = value
+    data[:, :, :, :, :, index] = value
 
 
 # @njit("void(float32[::1], int64, int64, float32)")
@@ -111,16 +111,16 @@ def mask_jet(data, num_partons, max_jets, index, value):
         mask_2(data, max_jets, index, value)
     elif num_partons == 3:
         mask_3(data, max_jets, index, value)
-    # elif num_partons == 4:
-    #     mask_4(data, max_jets, index, value)
-    # elif num_partons == 5:
-    #     mask_5(data, max_jets, index, value)
-    # elif num_partons == 6:
-    #     mask_6(data, max_jets, index, value)
-    # elif num_partons == 7:
-    #     mask_7(data, max_jets, index, value)
-    # elif num_partons == 8:
-    #     mask_8(data, max_jets, index, value)
+    elif num_partons == 4:
+        mask_4(data, max_jets, index, value)
+    elif num_partons == 5:
+        mask_5(data, max_jets, index, value)
+    elif num_partons == 6:
+        mask_6(data, max_jets, index, value)
+    #elif num_partons == 7:
+        #mask_7(data, max_jets, index, value)
+    #elif num_partons == 8:
+        #mask_8(data, max_jets, index, value)
 
 
 @njit("int64[::1](int64, int64)")
@@ -160,30 +160,30 @@ def maximal_prediction(predictions):
     for i in range(len(predictions)):
         max_jet = np.argmax(predictions[i])
         max_value = predictions[i][max_jet]
-
+        #print("initial max_jet and max_value:", max_jet, max_value)
         if max_value > best_value:
             best_prediction = i
             best_value = max_value
             best_jet = max_jet
-
+    #print("final max_jet and max_value:", best_jet, best_value)
     return best_jet, best_prediction, best_value
-
 
 @njit(TResult(TPrediction, TInt64[::1], TInt64))
 def extract_prediction(predictions, num_partons, max_jets):
     #print("\nNow in prediction_selection.extract_prediction()...\n")
-    #print("\nnum_partons: ", num_partons) # always [3,1,2] but different # of times
-    #print("\nlen(num_partons): ", len(num_partons))
-    #print("\nmax_jets: ", max_jets) # 15
+    print("\nnum_partons: ", num_partons) # always [3,1,2] but different # of times
+    print("\nlen(num_partons): ", len(num_partons))
+    print("\nmax_jets: ", max_jets) # 15
     float_negative_inf = -np.float32(np.inf)
     max_partons = num_partons.max()
     num_targets = len(predictions)
-    #print("\nnum_targets: ", num_targets) # weird but usually 3
-
+    print("\nnum_targets: ", num_targets) 
+        
     # Create copies of predictions for safety and calculate the output shapes
     strides = []
     for i in range(num_targets):
         strides.append(compute_strides(num_partons[i], max_jets))
+    print("\nstrides: ", strides) strides: [array([36,  6,  1]), array([1]), array([6, 1])]
 
     #print("\nstrides: ",strides)
     # Fill up the prediction matrix
@@ -199,7 +199,7 @@ def extract_prediction(predictions, num_partons, max_jets):
             return results
 
         best_jets = unravel_index(best_jet, strides[best_prediction])
-
+        #print("best_jets after unravel_index: ", best_jets)
         results[best_prediction, :] = -1
         for i in range(num_partons[best_prediction]):
             results[best_prediction, i] = best_jets[i]
@@ -213,7 +213,7 @@ def extract_prediction(predictions, num_partons, max_jets):
                 # num_partons[i] is 1,2 or 3
                 mask_jet(predictions[i], num_partons[i], max_jets, jet, float_negative_inf)
                 # puts -inf in place of jet index
-
+    print("results:", results)
     return results
 
 
