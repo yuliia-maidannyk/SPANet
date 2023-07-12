@@ -64,7 +64,8 @@ def spanet_trial(config, base_options_file: str, home_dir: str, num_epochs=10, g
             TuneReportCallback(
                 {
                     "loss": "loss/total_loss",
-                    "mean_accuracy": "validation_accuracy"
+                    "mean_accuracy": "validation_accuracy",
+                    "val_loss": "validation_loss/validation_loss"
                 },
                 on="validation_end"
             )
@@ -83,16 +84,19 @@ def tune_spanet(
     config = {
         "hidden_dim": tune.choice([32, 64, 96, 128]),
 
-        "num_encoder_layers": tune.choice([1, 2, 3, 4, 5, 6]),
-        "num_branch_embedding_layers": tune.choice([1, 2, 4, 6]),
-        "num_branch_encoder_layers": tune.choice([1, 2, 4, 6]),
+        "num_embedding_layers": tune.quniform(1,8,1),
+        "num_encoder_layers": tune.quniform(1,8,1),
+        "num_branch_embedding_layers": 5,
+        "num_branch_encoder_layers": tune.quniform(1,6,1),
+
+        "num_classification_layers": tune.quniform(1,8,1),
+        "num_attention_heads": tune.choice([2, 4, 8]),
 
         "num_regression_layers": tune.choice([1, 2, 4, 6]),
-        "num_classification_layers": tune.choice([1, 2, 4, 6]),
 
-        "learning_rate": tune.loguniform(1e-5, 1e-1),
-        "focal_gamma": tune.uniform(0.0, 1.0),
-        "l2_penalty": tune.loguniform(1e-6, 1e-2)
+        "learning_rate": tune.loguniform(1e-5, 1e-3),
+        "l2_penalty": tune.loguniform(1e-4, 1e-2),
+        "dropout": tune.uniform(0.01, 0.5),
     }
 
     scheduler = ASHAScheduler(
@@ -103,7 +107,7 @@ def tune_spanet(
 
     reporter = CLIReporter(
         parameter_columns=list(config.keys()),
-        metric_columns=["loss", "mean_accuracy", "training_iteration"]
+        metric_columns=["loss", "mean_accuracy", "val_loss", "training_iteration"]
     )
 
     train_fn_with_parameters = tune.with_parameters(
@@ -122,8 +126,8 @@ def tune_spanet(
             resources=resources_per_trial
         ),
         tune_config=tune.TuneConfig(
-            metric="loss",
-            mode="min",
+            metric="mean_accuracy",
+            mode="max",
             scheduler=scheduler,
             num_samples=num_trials,
         ),
