@@ -18,7 +18,7 @@ from ray import air, tune
 from ray.tune import CLIReporter
 from ray.tune.schedulers import ASHAScheduler
 from ray.tune.integration.pytorch_lightning import TuneReportCallback
-
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 def spanet_trial(config, base_options_file: str, home_dir: str, num_epochs=10, gpus_per_trial: int = 0):
     if not os.path.isabs(base_options_file):
@@ -61,6 +61,7 @@ def spanet_trial(config, base_options_file: str, home_dir: str, num_epochs=10, g
             save_dir=os.getcwd(), name="", version="."
         ),
         callbacks=[
+            EarlyStopping(monitor='validation_loss/validation_loss', min_delta=0.5, patience=15),
             TuneReportCallback(
                 {
                     "loss": "loss/total_loss",
@@ -84,12 +85,12 @@ def tune_spanet(
     config = {
         "hidden_dim": tune.choice([32, 64, 96, 128]),
 
-        "num_embedding_layers": tune.quniform(1,8,1),
-        "num_encoder_layers": tune.quniform(1,8,1),
-        "num_branch_embedding_layers": 5,
-        "num_branch_encoder_layers": tune.quniform(1,6,1),
+        "num_embedding_layers": tune.choice([1, 2, 3, 4, 5, 6, 7, 8]),
+        "num_encoder_layers": tune.choice([1, 2, 3, 4, 5, 6, 7, 8]),
+        "num_branch_embedding_layers": tune.choice([1, 2, 3, 4, 5, 6]),
+        "num_branch_encoder_layers": tune.choice([1, 2, 3, 4, 5, 6]),
 
-        "num_classification_layers": tune.quniform(1,8,1),
+        "num_classification_layers": tune.choice([1, 2, 3, 4, 5, 6, 7, 8]),
         "num_attention_heads": tune.choice([2, 4, 8]),
 
         "num_regression_layers": tune.choice([1, 2, 4, 6]),
@@ -174,4 +175,3 @@ if __name__ == '__main__':
         help="The sub-directory to create for this run.")
 
     tune_spanet(**parser.parse_args().__dict__)
-
