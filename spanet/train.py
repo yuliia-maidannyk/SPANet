@@ -19,6 +19,7 @@ from pytorch_lightning.callbacks import (
     ModelSummary,
     TQDMProgressBar
 )
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 from spanet import JetReconstructionModel, Options
 
@@ -153,7 +154,7 @@ def main(
         ModelCheckpoint(
             verbose=options.verbose_output,
             monitor='validation_accuracy',
-            save_top_k=3,
+            save_top_k=3, # CHANGE FOR MORE EPOCHS SAVED
             mode='max',
             save_last=True
         ),
@@ -172,7 +173,7 @@ def main(
     # Create the final pytorch-lightning manager
     trainer = pl.Trainer(logger=logger,
                          max_epochs=epochs,
-                         callbacks=callbacks,
+                         callbacks=EarlyStopping(monitor='validation_loss/validation_loss', min_delta=0.5, patience=15),
                          resume_from_checkpoint=checkpoint,
                          strategy=distributed_backend,
                          accelerator="gpu" if options.num_gpu > 0 else None,
