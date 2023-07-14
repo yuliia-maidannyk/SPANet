@@ -27,8 +27,8 @@
     "skip_connections": true,
     "initial_embedding_skip_connections": true,
 
-    "event_info_file": "/home/docker/SPANet/data/tth.yaml",
-    "training_file": "/home/docker/SPANet/data/tth.h5",
+    "event_info_file": "/eos/user/y/ymaidann/eth_project/Spanet_project/SPANet/data/tth.yaml",
+    "training_file": "/eos/user/y/ymaidann/eth_project/Spanet_project/SPANet/data/tth.h5",
 
     "normalize_features": true,
     "limit_to_num_jets": 0,
@@ -57,9 +57,9 @@
 
     "l2_penalty": 0.0002,
     "gradient_clip": 0.0,
-    "dropout": 0.1,
+    "dropout": 0.2,
 
-    "epochs": 5,
+    "epochs": 20,
     "num_gpu": 1,
     "verbose_output": true
 }
