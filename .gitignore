@@ -10,6 +10,10 @@ spanet-env.txt
 long_trainings/
 spanet_output/
 data/
+<<<<<<< HEAD
+=======
+options_files/
+>>>>>>> e975a55cd5284c4f1131f87f7a95d6cfffc00e4a
 pyvenv.cfg
 spanet-new/
 tensor-env/
