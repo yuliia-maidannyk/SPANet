@@ -5,6 +5,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+predictions/
+spanet-env.txt
+long_trainings/
+spanet_output/
+data/
+pyvenv.cfg
+spanet-new/
+tensor-env/
+onnx/view-onnx/
+
 # C extensions
 *.so
 
