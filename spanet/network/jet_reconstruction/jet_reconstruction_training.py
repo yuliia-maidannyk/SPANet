@@ -221,12 +221,12 @@ class JetReconstructionTraining(JetReconstructionNetwork):
         return total_loss + classification_terms
 
     def training_step(self, batch: Batch, batch_nb: int) -> Dict[str, Tensor]:
-        print("\nNow in training.training_step...\n")
+        #print("\nNow in training.training_step...\n")
         # ===================================================================================================
         # Network Forward Pass
         # ---------------------------------------------------------------------------------------------------
         outputs = self.forward(batch.sources)
-        print("\nBack in training.training_step...\n")
+        #print("\nBack in training.training_step...\n")
         # ===================================================================================================
         # Initial log-likelihood loss for classification task
         # ---------------------------------------------------------------------------------------------------

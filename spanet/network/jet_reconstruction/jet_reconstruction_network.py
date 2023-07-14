@@ -20,7 +20,6 @@ TArray = np.ndarray
 class JetReconstructionNetwork(JetReconstructionBase):
     def __init__(self, options: Options, torch_script: bool = False):
         """ Base class defining the SPANet architecture.
-
         Parameters
         ----------
         options: Options
@@ -30,18 +29,21 @@ class JetReconstructionNetwork(JetReconstructionBase):
         super(JetReconstructionNetwork, self).__init__(options)
 
         compile_module = torch.jit.script if torch_script else lambda x: x
-
+        #print("\nNow in network.init...\n")
         self.hidden_dim = options.hidden_dim
 
+        # (1) independent jet embeddings to produce latent space representations for each jet
         self.embedding = compile_module(MultiInputVectorEmbedding(
             options,
             self.training_dataset
         ))
 
+        # (2) central stack of transformer encoders into fixed-length states
         self.encoder = compile_module(JetEncoder(
             options,
         ))
 
+        # (3) braches of decoders back into a variable-length output
         self.branch_decoders = nn.ModuleList([
             BranchDecoder(
                 options,
@@ -72,11 +74,14 @@ class JetReconstructionNetwork(JetReconstructionBase):
         return True
 
     def forward(self, sources: Tuple[Source, ...]) -> Outputs:
+        #print("\nNow in network.forward...\n")
         # Embed all of the different input regression_vectors into the same latent space.
         embeddings, padding_masks, sequence_masks, global_masks = self.embedding(sources)
 
         # Extract features from data using transformer
+        #print("\nBegan transformer step...\n")
         hidden, event_vector = self.encoder(embeddings, padding_masks, sequence_masks)
+        #print("\nFinished transformer step...\n")
 
         # Create output lists for each particle in event.
         assignments = []
@@ -85,8 +90,10 @@ class JetReconstructionNetwork(JetReconstructionBase):
         encoded_vectors = {
             "EVENT": event_vector
         }
+        #print("encoded vectors shape: ", np.shape(encoded_vectors["EVENT"].numpy())) (1,64,32) -- (1, BATCH_SIZE, hidden_dim)
 
         # Pass the shared hidden state to every decoder branch
+        #print("\nBegan decoder step...\n")
         for decoder in self.branch_decoders:
             (
                 assignment,
@@ -109,6 +116,10 @@ class JetReconstructionNetwork(JetReconstructionBase):
 
         # Predict additional classification targets for any branch of the event.
         classifications = self.classification_decoder(encoded_vectors)
+        #print("assignments len: ", len(assignments))
+        #print("assignments[0] shape: ", np.shape(assignments[0]))
+        #print("\nFinished decoder step...\n")
+        #print(encoded_vectors)
 
         return Outputs(
             assignments,
@@ -119,30 +130,44 @@ class JetReconstructionNetwork(JetReconstructionBase):
         )
 
     def predict(self, sources: Tuple[Source, ...]) -> Predictions:
+        #print("\nNow in network.predict...\n")
         with torch.no_grad():
-            outputs = self.forward(sources)
+            assignments, detections, _, regressions, classifications = self.forward(sources)
+            #print("\nassignments[0] before extract_prediction(): ", np.shape(assignments[0]))
+            #print("\nassignments[1] before extract_prediction(): ", np.shape(assignments[1]))
+            #print("\nassignments[2] before extract_prediction(): ", np.shape(assignments[2]))
+            # Assignments now have shapes [64,15,15,15], [64,15] and [64,15,15] for t1,t2,H
 
-            # Extract assignment probabilities and find the least conflicting assignment.
+            # Extract assignment probabilities and find the least conflicting assignment. 
+            # Gets called 64 times
             assignments = extract_predictions([
                 np.nan_to_num(assignment.detach().cpu().numpy(), -np.inf)
-                for assignment in outputs.assignments
+                for assignment in assignments
             ])
+
+            # Assignments now have shapes [64,3], [64,1] and [64,2] for t1,t2,H
+
+            #print("\nassignments[0] after extract_prediction(): ", np.shape(assignments[0]))
+            #print("\nassignments[1] after extract_prediction(): ", np.shape(assignments[1]))
+            #print("\nassignments[2] after extract_prediction(): ", np.shape(assignments[2]))   
+
+            #print(assignments[0])
 
             # Convert detection logits into probabilities and move to CPU.
             detections = np.stack([
                 torch.sigmoid(detection).cpu().numpy()
-                for detection in outputs.detections
+                for detection in detections
             ])
 
             # Move regressions to CPU and away from torch.
             regressions = {
                 key: value.cpu().numpy()
-                for key, value in outputs.regressions.items()
+                for key, value in regressions.items()
             }
 
             classifications = {
                 key: value.cpu().argmax(1).numpy()
-                for key, value in outputs.classifications.items()
+                for key, value in classifications.items()
             }
 
         return Predictions(
@@ -157,7 +182,7 @@ class JetReconstructionNetwork(JetReconstructionBase):
         with torch.no_grad():
             assignments = [
                 np.nan_to_num(assignment.detach().cpu().numpy(), -np.inf)
-                for assignment in self.forward(sources).assignments
+                for assignment in self.forward(sources)[0]
             ]
 
         # Find the optimal selection of jets from the output distributions.
