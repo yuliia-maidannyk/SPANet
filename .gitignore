@@ -5,6 +5,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+spanet-copy
+spanet-env
+spanet_output/
+data/
+options_files/
+onnx/
+predictions/
+
 # C extensions
 *.so
 

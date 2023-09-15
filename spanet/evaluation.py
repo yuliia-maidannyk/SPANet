@@ -102,10 +102,14 @@ def evaluate_on_test_dataset(
         sources = tuple(Source(x[0].to(model.device), x[1].to(model.device)) for x in batch.sources)
         outputs = model.forward(sources)
 
+        print("Before extra_predictions:\n", outputs.assignments)
+
         assignment_indices = extract_predictions([
             np.nan_to_num(assignment.detach().cpu().numpy(), -np.inf)
             for assignment in outputs.assignments
         ])
+
+        print("After extract predictions:\n", assignment_indices)
 
         detection_probabilities = np.stack([
             torch.sigmoid(detection).cpu().numpy()
@@ -132,12 +136,15 @@ def evaluate_on_test_dataset(
             # Get the probability of the best assignment.
             # Have to use explicit function call here to construct index dynamically.
             assignment_probability = assignment_probability.__getitem__((dummy_index, *assignment.T))
+            print("Get the probability of the best assignment:\n", assignment_probability)
 
             # Convert from log-probability to probability.
             assignment_probability = torch.exp(assignment_probability)
+            print("Convert from log-probability to probability:\n", assignment_probability)
 
             # Multiply by the symmetry factor to account for equivalent predictions.
             assignment_probability = symmetries.order() * assignment_probability
+            print("Multiply by the symmetry factor to account for equivalent predictions:\n", assignment_probability)
 
             # Convert back to cpu and add to database.
             assignment_probabilities.append(assignment_probability.cpu().numpy())

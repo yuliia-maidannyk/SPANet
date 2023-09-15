@@ -11,6 +11,7 @@ from spanet.dataset.evaluator import SymmetricEvaluator, EventInfo
 from spanet.evaluation import evaluate_on_test_dataset, load_model
 from spanet.dataset.types import Evaluation
 
+import json
 
 def formatter(value: Any) -> str:
     """ A monolithic formatter function to convert possible values to output strings.
@@ -116,7 +117,7 @@ def create_table(table: dict, full_row: bool = False, event_type: str = None) ->
     stdout.flush()
 
 
-def display_latex_table(results: Dict[str, Any], jet_limits: List[str], clusters: List[str]):
+def display_latex_table(log_directory, results: Dict[str, Any], jet_limits: List[str], clusters: List[str]):
     columns = " ".join("c" * len(clusters))
     print(r"\begin{tabular}{c | c | c c | c " + columns + "}")
     print(r"\hline")
@@ -173,8 +174,29 @@ def display_latex_table(results: Dict[str, Any], jet_limits: List[str], clusters
     print(r"\hline")
     print(r"\end{tabular}")
 
+    # Output to json file
+    a = {
+        "Jet Limit": jet_limits,
+        "Event Proportion": [],
+        "Jet Proportion": [],
+        "Event Purity": [],
+        "H Purity": [],
+        "T1 Purity": [],
+        "T2 Purity": []}
+    for jet_limit in jet_limits:
+        a["Event Proportion"].append(results[jet_limit][f"1t11t21h/event_proportion"])
+        a["Jet Proportion"].append(results[jet_limit][f"event_jet_proportion"])
+        a["Event Purity"].append(results[jet_limit][f"1t11t21h/event_purity"])
+        a["H Purity"].append(results[jet_limit][f"1t11t21h/h_purity"])
+        a["T1 Purity"].append(results[jet_limit][f"1t11t21h/t1_purity"])
+        a["T2 Purity"].append(results[jet_limit][f"1t11t21h/t2_purity"])
+    json_object = json.dumps(a, indent=4)
+    name = log_directory.split("/")[-1].split("_")[-1]
+    with open(f"testing_v{name}_matched.json", "w") as outfile:
+        outfile.write(json_object)
 
-def display_table(results: Dict[str, Any], jet_limits: List[str], clusters: List[str]):
+
+def display_table(log_directory, results: Dict[str, Any], jet_limits: List[str], clusters: List[str]):
     event_types = set(map(lambda x: x.split("/")[0], filter(lambda x: "/" in x, next(iter(results.values())))))
     #print("\n\nresults.values: ", results.values())
     #print("\nevent_types: ", event_types)
@@ -191,10 +213,32 @@ def display_table(results: Dict[str, Any], jet_limits: List[str], clusters: List
             columns["Event Purity"].append(results[jet_limit][f"{event_type}/event_purity"])
             for particle_key in sorted(particle_keys):
                 name = ' '.join(map(str.capitalize, particle_key.split("_")))
+                print(particle_key)
                 columns[name].append(results[jet_limit][f"{event_type}/{particle_key}"])
 
         create_table(columns, event_type=event_type)
         print()
+
+    # Output to json file
+    a = {
+        "Jet Limit": jet_limits,
+        "Event Proportion": [],
+        "Jet Proportion": [],
+        "Event Purity": [],
+        "H Purity": [],
+        "T1 Purity": [],
+        "T2 Purity": []}
+    for jet_limit in jet_limits:
+        a["Event Proportion"].append(results[jet_limit][f"1t11t21h/event_proportion"])
+        a["Jet Proportion"].append(results[jet_limit][f"event_jet_proportion"])
+        a["Event Purity"].append(results[jet_limit][f"1t11t21h/event_purity"])
+        a["H Purity"].append(results[jet_limit][f"1t11t21h/h_purity"])
+        a["T1 Purity"].append(results[jet_limit][f"1t11t21h/t1_purity"])
+        a["T2 Purity"].append(results[jet_limit][f"1t11t21h/t2_purity"])
+    json_object = json.dumps(a, indent=4)
+    name = log_directory.split("/")[-1].split("_")[-1]
+    with open(f"testing_v{name}_matched.json", "w") as outfile:
+        outfile.write(json_object)
 
 
 def evaluate_predictions(predictions: ArrayLike, num_vectors: ArrayLike, targets: ArrayLike, masks: ArrayLike, event_info_file: str, lines: int):
@@ -246,9 +290,9 @@ def main(
 
     results, jet_limits, clusters = evaluate_predictions(predictions, model.testing_dataset.num_vectors.cpu().numpy(), targets, masks, model.options.event_info_file, lines)
     if latex:
-        display_latex_table(results, jet_limits, clusters)
+        display_latex_table(log_directory, results, jet_limits, clusters)
     else:
-        display_table(results, jet_limits, clusters)
+        display_table(log_directory, results, jet_limits, clusters)
 
 
 if __name__ == '__main__':

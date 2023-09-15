@@ -3,7 +3,7 @@ from torch import Tensor, nn, jit
 from spanet.options import Options
 from spanet.network.layers.linear_block.gru_block import GRUGate, GRUBlock
 from spanet.network.layers.transformer.transformer_base import TransformerBase
-
+import numpy as np
 
 class GTrXL(nn.Module):
     def __init__(self, options, hidden_dim: int, num_heads: int, dropout: float):
@@ -46,5 +46,8 @@ class GatedTransformer(TransformerBase):
 
         for layer in self.layers:
             output = layer(output, padding_mask, sequence_mask)
+
+        # add a layer that does the mass
+        #print(np.shape(output))
 
         return output

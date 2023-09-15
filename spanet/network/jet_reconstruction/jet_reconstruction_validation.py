@@ -8,6 +8,7 @@ from sklearn import metrics as sk_metrics
 from spanet.options import Options
 from spanet.dataset.evaluator import SymmetricEvaluator
 from spanet.network.jet_reconstruction.jet_reconstruction_network import JetReconstructionNetwork
+from spanet.network.jet_reconstruction.jet_reconstruction_training import JetReconstructionTraining
 
 
 class JetReconstructionValidation(JetReconstructionNetwork):
@@ -153,11 +154,53 @@ class JetReconstructionValidation(JetReconstructionNetwork):
             if not np.isnan(value):
                 self.log(name, value, sync_dist=True)
 
+        outputs = self.forward(batch.sources) # jet_reconstruction_network
+
+        symmetric_losses, best_indices = self.symmetric_losses(
+            outputs.assignments,
+            outputs.detections,
+            batch.assignment_targets
+        )
+
+        # Construct the newly permuted masks based on the minimal permutation found during NLL loss.
+        permutations = self.event_permutation_tensor[best_indices].T
+        masks = torch.stack([target.mask for target in batch.assignment_targets])
+        masks = torch.gather(masks, 0, permutations)
+
+        # Default unity weight on correct device.
+        weights = torch.ones_like(symmetric_losses)
+
+        # Balance based on the particles present - only used in partial event training
+        if self.balance_particles:
+            class_indices = (masks * self.particle_index_tensor.unsqueeze(1)).sum(0)
+            weights *= self.particle_weights_tensor[class_indices]
+
+        # Balance based on the number of jets in this event
+        if self.balance_jets:
+            weights *= self.jet_weights_tensor[batch.num_vectors]
+
+        # Take the weighted average of the symmetric loss terms.
+        masks = masks.unsqueeze(1)
+        symmetric_losses = (weights * symmetric_losses).sum(-1) / masks.sum(-1)
+        assignment_loss, detection_loss = torch.unbind(symmetric_losses, 1)
+
+        total_loss = []
+
+        if self.options.assignment_loss_scale > 0:
+            total_loss.append(assignment_loss)
+
+        if self.options.detection_loss_scale > 0:
+            total_loss.append(detection_loss)
+        
+        total_loss = torch.cat([loss.view(-1) for loss in total_loss])
+
+        self.log("validation_loss/validation_loss", total_loss.sum(), sync_dist=True)
+        
         return metrics
 
     def validation_epoch_end(self, outputs):
         # Optionally use this accuracy score for something like hyperparameter search
-        # validation_accuracy = sum(x['validation_accuracy'] for x in outputs) / len(outputs)
+        validation_accuracy = sum(x['validation_accuracy'] for x in outputs) / len(outputs)
 
         if self.options.verbose_output:
             for name, parameter in self.named_parameters():

@@ -19,6 +19,7 @@ from pytorch_lightning.callbacks import (
     ModelSummary,
     TQDMProgressBar
 )
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 from spanet import JetReconstructionModel, Options
 
@@ -188,6 +189,7 @@ def main(
         makedirs(trainer.logger.log_dir, exist_ok=True)
 
         with open(f"{trainer.logger.log_dir}/options.json", 'w') as json_file:
+            #options.__dict__["version"] = trainer.logger.log_dir
             json.dump(options.__dict__, json_file, indent=4)
 
         shutil.copy2(options.event_info_file, f"{trainer.logger.log_dir}/event.yaml")

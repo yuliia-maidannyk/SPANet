@@ -171,19 +171,19 @@ def maximal_prediction(predictions):
 @njit(TResult(TPrediction, TInt64[::1], TInt64))
 def extract_prediction(predictions, num_partons, max_jets):
     #print("\nNow in prediction_selection.extract_prediction()...\n")
-    print("\nnum_partons: ", num_partons) # always [3,1,2] but different # of times
-    print("\nlen(num_partons): ", len(num_partons))
-    print("\nmax_jets: ", max_jets) # 15
+    #print("\nnum_partons: ", num_partons) # always [3,1,2] but different # of times
+    #print("\nlen(num_partons): ", len(num_partons))
+    #print("\nmax_jets: ", max_jets) # 15
     float_negative_inf = -np.float32(np.inf)
     max_partons = num_partons.max()
     num_targets = len(predictions)
-    print("\nnum_targets: ", num_targets) 
+    #print("\nnum_targets: ", num_targets) 
         
     # Create copies of predictions for safety and calculate the output shapes
     strides = []
     for i in range(num_targets):
         strides.append(compute_strides(num_partons[i], max_jets))
-    print("\nstrides: ", strides) strides: [array([36,  6,  1]), array([1]), array([6, 1])]
+    #print("\nstrides: ", strides) 
 
     #print("\nstrides: ",strides)
     # Fill up the prediction matrix
@@ -213,7 +213,7 @@ def extract_prediction(predictions, num_partons, max_jets):
                 # num_partons[i] is 1,2 or 3
                 mask_jet(predictions[i], num_partons[i], max_jets, jet, float_negative_inf)
                 # puts -inf in place of jet index
-    print("results:", results)
+    #print("results:", results)
     return results
 
 

@@ -71,7 +71,7 @@ class SymmetricEvaluator:
         return predictions, target_jets, target_masks
 
     def particle_count_info(self, target_masks):
-        print("\nCalculating particle count info...")
+        #print("\nCalculating particle count info...")
     # gets executed lines+2 times
         target_masks = np.array(target_masks)
 
@@ -149,14 +149,14 @@ class SymmetricEvaluator:
         #print("accurate_event: ", accurate_event)
 
         #print("len(best_accuracy): ", len(best_accuracy))
-        print(len(best_accuracy))
+        #print(len(best_accuracy))
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
             return accurate_event.mean()
 
     def full_report(self, predictions, target_jets, target_masks):
-        print("\nNow doing full_report() in dataset.evaluator...")
+        #print("\nNow doing full_report() in dataset.evaluator...")
         predictions, target_jets, target_masks = self.sort_outputs(predictions, target_jets, target_masks)
 
         total_particle_counts, particle_counts, particle_max = self.particle_count_info(target_masks)
@@ -196,7 +196,7 @@ class SymmetricEvaluator:
         return full_results
 
     def full_report_string(self, predictions, target_jets, target_masks, prefix: str = ""):
-        print("\nNow in full_report_string() in dataset.evaluator...")
+        #print("\nNow in full_report_string() in dataset.evaluator...")
         full_purities = {}
 
         report = self.full_report(predictions, target_jets, target_masks)
@@ -213,7 +213,7 @@ class SymmetricEvaluator:
             for mask_count, (cluster_name, _, cluster_purity) in zip(event_mask, particle_purity):
                 mask_count = "*" if mask_count < 0 else str(mask_count)
                 event_mask_name = event_mask_name + mask_count + cluster_name
-                print(event_mask_name)
+                #print(event_mask_name)
                 purity["{}{}/{}_purity".format("{}", "{}", cluster_name)] = cluster_purity
 
             purity = {

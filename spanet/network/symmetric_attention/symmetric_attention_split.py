@@ -94,7 +94,7 @@ class SymmetricAttentionSplit(SymmetricAttentionBase):
         output : [T, T, ...]
             Prediction logits for this particle.
         """
-        print("Doing split symmetric attention...")
+        #print("Doing split symmetric attention...")
         # ---------------------------------------------------------
         # Construct the transformed attention vectors for each jet.
         # ys: [[T, B, D], ...]
