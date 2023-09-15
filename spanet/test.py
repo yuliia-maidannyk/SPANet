@@ -275,11 +275,19 @@ def main(
     batch_size: Optional[int],
     lines: int, # CHANGE FROM ==2 TO SEE MORE LINES IN THE TABLE
     gpu: bool,
+<<<<<<< HEAD
     latex: bool,
     checkpoint: Optional[str]
 ):
     model = load_model(log_directory, test_file, event_file, batch_size, gpu, checkpoint)
     evaluation = evaluate_on_test_dataset(model)
+=======
+    fp16: bool,
+    latex: bool
+):
+    model = load_model(log_directory, test_file, event_file, batch_size, gpu, fp16=fp16)
+    evaluation = evaluate_on_test_dataset(model, fp16=fp16)
+>>>>>>> d8ee65ea8741689837c6e6c4e6aaffda8898fa08
 
     # Flatten predictions
     predictions = list(evaluation.assignments.values())
@@ -316,6 +324,9 @@ if __name__ == '__main__':
 
     parser.add_argument("-g", "--gpu", action="store_true",
                         help="Evaluate network on the gpu.")
+
+    parser.add_argument("-fp16", "--fp16", action="store_true",
+                        help="Use Automatic Mixed Precision for inference.")
 
     parser.add_argument("-tex", "--latex", action="store_true",
                         help="Output a latex table.")

@@ -252,4 +252,8 @@ ipython_config.py
 # pytorch-lightning output
 *_logs/
 *_output/
-!/environment/
+<<<<<<< HEAD
+environment/
+=======
+environment/
+>>>>>>> d8ee65ea8741689837c6e6c4e6aaffda8898fa08
