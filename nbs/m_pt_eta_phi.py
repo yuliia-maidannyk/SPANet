@@ -1,3 +1,7 @@
+# Generates plots of kinematic variables (invariant mass, pt, eta, phi) for ttH
+# 2023-10-26 22:31:32
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import awkward as ak
 import vector
 import h5py
@@ -18,8 +22,10 @@ mpl.rcParams['grid.alpha'] = 0.2
 mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 24
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
+# Load files (true .h5, prediction .h5, and jets .parquet)
 df_pred = h5py.File('../predictions/0107_output_v7_matched.h5','r')
 df_true = h5py.File('../data/tth_matched_3.h5','r')
 df_jets = ak.from_parquet("/eos/user/d/dvalsecc/www/ttHbbAnalysis/training_dataset/all_jets_v6.parquet")

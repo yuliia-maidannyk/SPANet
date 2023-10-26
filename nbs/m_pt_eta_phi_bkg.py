@@ -1,3 +1,7 @@
+# Generates plots of kinematic variables (invariant mass, pt, eta, phi) for ttH background files.
+# 2023-10-26 22:26:56
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import awkward as ak
 import vector
 import numpy as np
@@ -17,20 +21,21 @@ mpl.rcParams['grid.alpha'] = 0.2
 mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 24
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ HADRONIC TOP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print("\nAnalysing hadronic top...\n")
 fig, axs = plt.subplots(2, 2)
 
-# Load files
-bkg1 = "TTbbSemiLeptonic_Powheg_2016_PostVFP_v7"
+# Load files (true .h5, prediction .h5, and jets .parquet)
+bkg1 = "TTbbSemiLeptonic_Powheg_2016_PostVFP_v9"
 bkg1_true, bkg1_pred, bkg1_jets, bkg_lep1, bkg_met1 = initialise_sig(bkg1)
-bkg2 = "TTbbSemiLeptonic_Powheg_2016_PreVFP_v7"
+bkg2 = "TTbbSemiLeptonic_Powheg_2016_PreVFP_v9"
 bkg2_true, bkg2_pred, bkg2_jets, bkg_lep2, bkg_met2 = initialise_sig(bkg2)
-bkg3 = "TTbbSemiLeptonic_Powheg_2017_v7"
+bkg3 = "TTbbSemiLeptonic_Powheg_2017_v9"
 bkg3_true, bkg3_pred, bkg3_jets, bkg_lep3, bkg_met3 = initialise_sig(bkg3)
-bkg4 = "TTbbSemiLeptonic_Powheg_2018_v7"
+bkg4 = "TTbbSemiLeptonic_Powheg_2018_v9"
 bkg4_true, bkg4_pred, bkg4_jets, bkg_lep4, bkg_met4 = initialise_sig(bkg4)
 
 ind_true, ind_pred = get_hadtop_indices(bkg1_true, bkg1_pred)
@@ -118,10 +123,11 @@ true = np.hstack((true1, true2, true3, true4))
 axs[1,1].hist(pred, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 axs[1,1].hist(true, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 
-axs[0,0].set_title('mass', fontsize=18, pad=10)
-axs[0,1].set_title('pt', fontsize=18, pad=10)
-axs[1,0].set_title('eta', fontsize=18, pad=10)
-axs[1,1].set_title('phi', fontsize=18, pad=10)
+axs[0,0].set_xlabel('Invariant mass [GeV]', fontsize=12, labelpad=10)
+axs[0,1].set_xlabel('Transverse momentum [GeV]', fontsize=12, labelpad=10)
+axs[1,0].set_xlabel('Pseudorapidity', fontsize=12, labelpad=10)
+axs[1,1].set_xlabel('Azimuthal angle [rad]', fontsize=12, labelpad=10)
+
 axs[0,0].tick_params(labelsize=10)
 axs[0,1].tick_params(labelsize=10)
 axs[1,0].tick_params(labelsize=10)
@@ -129,7 +135,7 @@ axs[1,1].tick_params(labelsize=10)
 labels = ["predicted", "true"]
 fig.legend(labels, loc="upper center", ncol=2)
 
-name = figdir+"t1_m_pt_eta_phi_bkg_v7.png"
+name = figdir+"t1_m_pt_eta_phi_bkg_v9.png"
 fig.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -219,10 +225,11 @@ true = np.hstack((true1, true2, true3, true4))
 axs[1,1].hist(pred, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 axs[1,1].hist(true, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 
-axs[0,0].set_title('mass', fontsize=18, pad=10)
-axs[0,1].set_title('pt', fontsize=18, pad=10)
-axs[1,0].set_title('eta', fontsize=18, pad=10)
-axs[1,1].set_title('phi', fontsize=18, pad=10)
+axs[0,0].set_xlabel('Invariant mass [GeV]', fontsize=12, labelpad=10)
+axs[0,1].set_xlabel('Transverse momentum [GeV]', fontsize=12, labelpad=10)
+axs[1,0].set_xlabel('Pseudorapidity', fontsize=12, labelpad=10)
+axs[1,1].set_xlabel('Azimuthal angle [rad]', fontsize=12, labelpad=10)
+
 axs[0,0].tick_params(labelsize=10)
 axs[0,1].tick_params(labelsize=10)
 axs[1,0].tick_params(labelsize=10)
@@ -230,6 +237,6 @@ axs[1,1].tick_params(labelsize=10)
 labels = ["predicted", "true"]
 fig.legend(labels, loc="upper center", ncol=2)
 
-name = figdir+"t2_m_pt_eta_phi_bkg_v7.png"
+name = figdir+"t2_m_pt_eta_phi_bkg_v9.png"
 fig.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")

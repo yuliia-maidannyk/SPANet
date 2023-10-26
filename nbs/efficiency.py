@@ -1,3 +1,8 @@
+# Generates a table of purities for ttH. Creates plots of purity 
+# against the number of jets in the event for each event particle.
+# 2023-10-26 22:34:03
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import h5py
 import awkward as ak
 import pandas as pd
@@ -21,8 +26,10 @@ mpl.rcParams['grid.alpha'] = 0.2
 mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 24
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
+# Load files (true .h5, prediction .h5, and jets .parquet)
 df_pred = h5py.File('../predictions/0107_output_v7_matched.h5','r')
 df_true = h5py.File('../data/tth_matched_3.h5','r')
 df_jets = ak.from_parquet("/eos/user/d/dvalsecc/www/ttHbbAnalysis/training_dataset/all_jets_v6.parquet")
@@ -42,6 +49,7 @@ jets = jets[mask_match]
 print("\n--Leptonic top--\n")
 nmin = ak.min(ak.num(jets))
 nmax = ak.max(ak.num(jets))
+# Calculate purities by the number of jets in the event for each file
 purities, df = get_purities_by_njets("t2", df_true, df_pred, jets, nmin, nmax)
 leptop_purities = purities
 print(df)
@@ -70,7 +78,7 @@ print(f"\nFigure saved as : {name}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ HADRONIC TOP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print("\n--Hadronic top--\n")
-
+# Calculate purities by the number of jets in the event for each file
 purities, df = get_purities_by_njets("t1", df_true, df_pred, jets, nmin, nmax)
 hadtop_purities = purities
 print(df)
@@ -99,6 +107,7 @@ print(f"\nFigure saved as : {name}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HIGGS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print("\n--Higgs--\n")
+# Calculate purities by the number of jets in the event
 purities, df = get_purities_by_njets("h", df_true, df_pred, jets, nmin, nmax)
 higgs_purities = purities
 print(df)

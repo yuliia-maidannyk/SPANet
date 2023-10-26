@@ -1,3 +1,8 @@
+# Generates a table of purities for ttH signal files. Creates plots of purity 
+# against the number of jets in the event for each event particle.
+# 2023-10-26 22:23:26
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import awkward as ak
 import pandas as pd
 import vector
@@ -21,6 +26,9 @@ mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 24
 
 def get_matched(jets):
+    """
+    Get only fully matched jets
+    """
     higgs = jets[jets.prov == 1]
     mask_match = ak.num(higgs) == 2
 
@@ -33,18 +41,20 @@ def get_matched(jets):
     jets = jets[mask_match]
     return jets
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
-# Load files
-sig1 = "ttHTobb_2017_matched_v7"
+# Load files (true .h5, prediction .h5, and jets .parquet)
+sig1 = "ttHTobb_forTraining_2017_matched_v9"
 sig1_true, sig1_pred, sig1_jets, _, _ = initialise_sig(sig1)
-sig2 = "ttHTobb_2018_matched_v7"
+sig2 = "ttHTobb_forTraining_2018_matched_v9"
 sig2_true, sig2_pred, sig2_jets, _, _ = initialise_sig(sig2)
-sig3 = "ttHTobb_2016_PreVFP_matched_v7"
+sig3 = "ttHTobb_forTraining_2016_PreVFP_matched_v9"
 sig3_true, sig3_pred, sig3_jets, _, _ = initialise_sig(sig3)
-sig4 = "ttHTobb_2016_PostVFP_matched_v7"
+sig4 = "ttHTobb_forTraining_2016_PostVFP_matched_v9"
 sig4_true, sig4_pred, sig4_jets, _, _ = initialise_sig(sig4)
 
+# For signal, analyse only fully matched events
 sig1_jets = get_matched(sig1_jets)
 sig2_jets = get_matched(sig2_jets)
 sig3_jets = get_matched(sig3_jets)
@@ -53,6 +63,8 @@ sig4_jets = get_matched(sig4_jets)
 # ~~~~~~~~~~~~~~~~~~~~~~~~ LEPTONIC TOP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 nmin = 6
 leptop_purities = []
+
+# Calculate purities by the number of jets in the event for each file
 
 print(f"\n--Leptonic top {sig1}--\n")
 nmax1 = ak.max(ak.num(sig1_jets))
@@ -101,7 +113,7 @@ ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.1))
 plt.legend(fontsize=18, loc="upper left")
 plt.grid(zorder=0)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"t2_eff_vs_njets_sig_split_v7.png"
+name = figdir+"t2_eff_vs_njets_sig_split_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"\nFigure saved as : {name}")
 
@@ -114,6 +126,8 @@ for i in range(14-6):
 fig, ax = plt.subplots(1, 1)
 
 plt.plot(np.linspace(6,13,8), leptop_means, marker='o', lw=2.5)
+plt.axhline(mean, label="mean efficiency", c='r', ls="--", lw=2.5)
+print("leptop mean ", mean)
 plt.xlabel("Number of jets in the event", fontsize=20, labelpad=10)
 plt.ylabel("Efficiency", fontsize=20, labelpad=10)
 plt.title("Leptonic top", fontsize=24, pad=15)
@@ -127,13 +141,16 @@ ax.yaxis.set_major_locator(mpl.ticker.MultipleLocator(0.2))
 ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.1))
 
 plt.grid(zorder=0)
+plt.legend(loc="upper right")
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"t2_eff_vs_njets_sig_v7.png"
+name = figdir+"t2_eff_vs_njets_sig_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"\nFigure saved as : {name}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ HADRONIC TOP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 hadtop_purities = []
+
+# Calculate purities by the number of jets in the event for each file
 
 print(f"\n--Hadronic top {sig1}--\n")
 nmax1 = ak.max(ak.num(sig1_jets))
@@ -182,7 +199,7 @@ ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.1))
 plt.legend(fontsize=18, loc="upper left")
 plt.grid(zorder=0)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"t1_eff_vs_njets_sig_split_v7.png"
+name = figdir+"t1_eff_vs_njets_sig_split_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"\nFigure saved as : {name}")
 
@@ -195,6 +212,8 @@ for i in range(14-6):
 fig, ax = plt.subplots(1, 1)
 
 plt.plot(np.linspace(6,13,8), hadtop_means, marker='o', lw=2.5)
+plt.axhline(mean, label="mean efficiency", c='r', ls="--", lw=2.5)
+print("Hadtop mean ", mean)
 plt.xlabel("Number of jets in the event", fontsize=20, labelpad=10)
 plt.ylabel("Efficiency", fontsize=20, labelpad=10)
 plt.title("Hadronic top", fontsize=24, pad=15)
@@ -208,13 +227,16 @@ ax.yaxis.set_major_locator(mpl.ticker.MultipleLocator(0.2))
 ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.1))
 
 plt.grid(zorder=0)
+plt.legend(loc="upper right")
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"t1_eff_vs_njets_sig_v7.png"
+name = figdir+"t1_eff_vs_njets_sig_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"\nFigure saved as : {name}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ HIGGS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 higgs_purities = []
+
+# Calculate purities by the number of jets in the event for each file
 
 print(f"\n--Higgs {sig1}--\n")
 nmax1 = ak.max(ak.num(sig1_jets))
@@ -263,7 +285,7 @@ ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.1))
 plt.legend(fontsize=18, loc="upper left")
 plt.grid(zorder=0)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"h_eff_vs_njets_sig_split_v7.png"
+name = figdir+"h_eff_vs_njets_sig_split_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"\nFigure saved as : {name}")
 
@@ -276,6 +298,9 @@ for i in range(14-6):
 fig, ax = plt.subplots(1, 1)
 
 plt.plot(np.linspace(6,13,8), higgs_means, marker='o', lw=2.5)
+plt.axhline(mean, label="mean efficiency", c='r', ls="--", lw=2.5)
+print("Higgs mean ", mean)
+
 plt.xlabel("Number of jets in the event", fontsize=20, labelpad=10)
 plt.ylabel("Efficiency", fontsize=20, labelpad=10)
 plt.title("Higgs", fontsize=24, pad=15)
@@ -289,7 +314,8 @@ ax.yaxis.set_major_locator(mpl.ticker.MultipleLocator(0.2))
 ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(0.1))
 
 plt.grid(zorder=0)
+plt.legend(loc="upper right")
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"h_eff_vs_njets_sig_v7.png"
+name = figdir+"h_eff_vs_njets_sig_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"\nFigure saved as : {name}")

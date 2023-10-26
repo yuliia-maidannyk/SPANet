@@ -1,3 +1,7 @@
+# Generates plots of kinematic variables (invariant mass, pt, eta, phi) for ttH signal files.
+# 2023-10-26 22:27:45
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import awkward as ak
 import pandas as pd
 import vector
@@ -21,6 +25,9 @@ mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 24
 
 def get_matched(jets):
+    """
+    Get only fully matched jets. Output jets and the fully matched mask
+    """
     higgs = jets[jets.prov == 1]
     mask_match = ak.num(higgs) == 2
 
@@ -33,16 +40,17 @@ def get_matched(jets):
     jets = jets[mask_match]
     return jets, mask_match
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
-# Load files
-sig1 = "ttHTobb_2017_matched_v7"
+# Load files (true .h5, prediction .h5, and jets .parquet)
+sig1 = "ttHTobb_forTraining_2017_matched_v9"
 sig1_true, sig1_pred, sig1_jets, sig1_lep, sig1_met = initialise_sig(sig1)
-sig2 = "ttHTobb_2018_matched_v7"
+sig2 = "ttHTobb_forTraining_2018_matched_v9"
 sig2_true, sig2_pred, sig2_jets, sig2_lep, sig2_met = initialise_sig(sig2)
-sig3 = "ttHTobb_2016_PreVFP_matched_v7"
+sig3 = "ttHTobb_forTraining_2016_PreVFP_matched_v9"
 sig3_true, sig3_pred, sig3_jets, sig3_lep, sig3_met = initialise_sig(sig3)
-sig4 = "ttHTobb_2016_PostVFP_matched_v7"
+sig4 = "ttHTobb_forTraining_2016_PostVFP_matched_v9"
 sig4_true, sig4_pred, sig4_jets, sig4_lep, sig4_met = initialise_sig(sig4)
 
 sig1_jets, mask_match = get_matched(sig1_jets)
@@ -135,10 +143,10 @@ true = np.hstack((true1, true2, true3, true4))
 axs[1,1].hist(pred, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 axs[1,1].hist(true, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 
-axs[0,0].set_title('mass', fontsize=18, pad=10)
-axs[0,1].set_title('pt', fontsize=18, pad=10)
-axs[1,0].set_title('eta', fontsize=18, pad=10)
-axs[1,1].set_title('phi', fontsize=18, pad=10)
+axs[0,0].set_xlabel('Invariant mass [GeV]', fontsize=12, labelpad=10)
+axs[0,1].set_xlabel('Transverse momentum [GeV]', fontsize=12, labelpad=10)
+axs[1,0].set_xlabel('Pseudorapidity', fontsize=12, labelpad=10)
+axs[1,1].set_xlabel('Azimuthal angle [rad]', fontsize=12, labelpad=10)
 axs[0,0].tick_params(labelsize=10)
 axs[0,1].tick_params(labelsize=10)
 axs[1,0].tick_params(labelsize=10)
@@ -146,7 +154,7 @@ axs[1,1].tick_params(labelsize=10)
 labels = ["predicted", "true"]
 fig.legend(labels, loc="upper center", ncol=2)
 
-name = figdir+"h_m_pt_eta_phi_sig_v7.png"
+name = figdir+"h_m_pt_eta_phi_sig_v9.png"
 fig.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -227,10 +235,10 @@ true = np.hstack((true1, true2, true3, true4))
 axs[1,1].hist(pred, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 axs[1,1].hist(true, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 
-axs[0,0].set_title('mass', fontsize=18, pad=10)
-axs[0,1].set_title('pt', fontsize=18, pad=10)
-axs[1,0].set_title('eta', fontsize=18, pad=10)
-axs[1,1].set_title('phi', fontsize=18, pad=10)
+axs[0,0].set_xlabel('Invariant mass [GeV]', fontsize=12, labelpad=10)
+axs[0,1].set_xlabel('Transverse momentum [GeV]', fontsize=12, labelpad=10)
+axs[1,0].set_xlabel('Pseudorapidity', fontsize=12, labelpad=10)
+axs[1,1].set_xlabel('Azimuthal angle [rad]', fontsize=12, labelpad=10)
 axs[0,0].tick_params(labelsize=10)
 axs[0,1].tick_params(labelsize=10)
 axs[1,0].tick_params(labelsize=10)
@@ -238,7 +246,7 @@ axs[1,1].tick_params(labelsize=10)
 labels = ["predicted", "true"]
 fig.legend(labels, loc="upper center", ncol=2)
 
-name = figdir+"t1_m_pt_eta_phi_sig_v7.png"
+name = figdir+"t1_m_pt_eta_phi_sig_v9.png"
 fig.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -319,10 +327,11 @@ true = np.hstack((true1, true2, true3, true4))
 axs[1,1].hist(pred, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 axs[1,1].hist(true, bins=50, range=(-np.pi,np.pi), histtype="step", density=True, lw=1.5)
 
-axs[0,0].set_title('mass', fontsize=18, pad=10)
-axs[0,1].set_title('pt', fontsize=18, pad=10)
-axs[1,0].set_title('eta', fontsize=18, pad=10)
-axs[1,1].set_title('phi', fontsize=18, pad=10)
+axs[0,0].set_xlabel('Invariant mass [GeV]', fontsize=12, labelpad=10)
+axs[0,1].set_xlabel('Transverse momentum [GeV]', fontsize=12, labelpad=10)
+axs[1,0].set_xlabel('Pseudorapidity', fontsize=12, labelpad=10)
+axs[1,1].set_xlabel('Azimuthal angle [rad]', fontsize=12, labelpad=10)
+
 axs[0,0].tick_params(labelsize=10)
 axs[0,1].tick_params(labelsize=10)
 axs[1,0].tick_params(labelsize=10)
@@ -330,6 +339,6 @@ axs[1,1].tick_params(labelsize=10)
 labels = ["predicted", "true"]
 fig.legend(labels, loc="upper center", ncol=2)
 
-name = figdir+"t2_m_pt_eta_phi_sig_v7.png"
+name = figdir+"t2_m_pt_eta_phi_sig_v9.png"
 fig.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")

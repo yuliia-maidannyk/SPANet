@@ -3,7 +3,7 @@ import awkward as ak
 import pandas as pd
 import sys
 
-basedir = "/eos/user/y/ymaidann/eth_project/Spanet_project/v2_sig_bkg/"
+basedir = "/eos/user/y/ymaidann/eth_project/Spanet_project/v3_sig_forTrainingDataset/"
 datadir = basedir + "data/"
 preddir = basedir + "predictions/"
 jetsdir = basedir + "jets/"
@@ -36,11 +36,11 @@ def initialise_sig(file):
     df_true = h5py.File(datadir + file[:-3] + ".h5",'r')
 
     if "matched" in file:
-        file_check(jetsdir + f"all_jets_fullRun2_{file[:-11]}_v2.parquet")
-        df_jets = ak.from_parquet(jetsdir + f"all_jets_fullRun2_{file[:-11]}_v2.parquet")
+        file_check(jetsdir + f"all_jets_fullRun2_{file[:-11]}_v3.parquet")
+        df_jets = ak.from_parquet(jetsdir + f"all_jets_fullRun2_{file[:-11]}_v3.parquet")
     else:
-        file_check(jetsdir + f"all_jets_fullRun2_{file[:-3]}_v2.parquet")
-        df_jets = ak.from_parquet(jetsdir + f"all_jets_fullRun2_{file[:-3]}_v2.parquet")
+        file_check(jetsdir + f"all_jets_fullRun2_{file[:-3]}_v3.parquet")
+        df_jets = ak.from_parquet(jetsdir + f"all_jets_fullRun2_{file[:-3]}_v3.parquet")
 
     if len(ak.unzip(df_jets)) == 9:
         (jets,_,_,_,_,lep, met,_,_) = ak.unzip(df_jets)

@@ -1,3 +1,7 @@
+# Generates plots of fully matched ttH signal, inclusive ttH signal, and ttH backgrounds.
+# 2023-10-26 22:28:51
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import awkward as ak
 import vector
 import numpy as np
@@ -18,6 +22,9 @@ mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 24
 
 def get_matched(jets):
+    """
+    Get only fully matched jets
+    """
     higgs = jets[jets.prov == 1]
     mask_match = ak.num(higgs) == 2
 
@@ -30,18 +37,19 @@ def get_matched(jets):
     jets = jets[mask_match]
     return jets
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ SIGNAL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print("\nAnalysing signal...\n")
 
-sig1 = "ttHTobb_2017_matched_v7"
+sig1 = "ttHTobb_forTraining_2017_matched_v9"
 sig1_true, sig1_pred, sig1_jets, _, _ = initialise_sig(sig1)
-sig2 = "ttHTobb_2018_matched_v7"
+sig2 = "ttHTobb_forTraining_2018_matched_v9"
 sig2_true, sig2_pred, sig2_jets, _, _ = initialise_sig(sig2)
-sig3 = "ttHTobb_2016_PostVFP_matched_v7"
+sig3 = "ttHTobb_forTraining_2016_PostVFP_matched_v9"
 sig3_true, sig3_pred, sig3_jets, _, _ = initialise_sig(sig3)
-sig4 = "ttHTobb_2016_PreVFP_matched_v7"
+sig4 = "ttHTobb_forTraining_2016_PreVFP_matched_v9"
 sig4_true, sig4_pred, sig4_jets, _, _ = initialise_sig(sig4)
 
 sig1_jets = get_matched(sig1_jets)
@@ -76,17 +84,17 @@ plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.title("Fully matched events: signal", pad=15)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"sig_matched_v7.png"
+name = figdir+"sig_matched_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
-sig1 = "ttHTobb_2017_v7"
+sig1 = "ttHTobb_forTraining_2017_v9"
 sig1_true, sig1_pred, sig1_jets, _, _ = initialise_sig(sig1)
-sig2 = "ttHTobb_2018_v7"
+sig2 = "ttHTobb_forTraining_2018_v9"
 sig2_true, sig2_pred, sig2_jets, _, _ = initialise_sig(sig2)
-sig3 = "ttHTobb_2016_PostVFP_v7"
+sig3 = "ttHTobb_forTraining_2016_PostVFP_v9"
 sig3_true, sig3_pred, sig3_jets, _, _ = initialise_sig(sig3)
-sig4 = "ttHTobb_2016_PreVFP_v7"
+sig4 = "ttHTobb_forTraining_2016_PreVFP_v9"
 sig4_true, sig4_pred, sig4_jets, _, _ = initialise_sig(sig4)
 
 # Get jets coming from the Higgs
@@ -122,7 +130,7 @@ plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.title("Inclusive events: signal", pad=15)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"sig_incl_v7.png"
+name = figdir+"sig_incl_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -135,20 +143,20 @@ plt.xlim(0,300)
 plt.xlabel(r"$m_{bb}$")
 plt.legend(bbox_to_anchor=(1,1))
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"norm_sig_split_v7.png"
+name = figdir+"norm_sig_split_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ TTbb BACKGROUND ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print("\nAnalysing TTbb background...\n")
 
-bkg1 = "TTbbSemiLeptonic_Powheg_2016_PostVFP_v7"
+bkg1 = "TTbbSemiLeptonic_Powheg_2016_PostVFP_v9"
 bkg1_true, bkg1_pred, bkg1_jets, _, _ = initialise_sig(bkg1)
-bkg2 = "TTbbSemiLeptonic_Powheg_2016_PreVFP_v7"
+bkg2 = "TTbbSemiLeptonic_Powheg_2016_PreVFP_v9"
 bkg2_true, bkg2_pred, bkg2_jets, _, _ = initialise_sig(bkg2)
-bkg3 = "TTbbSemiLeptonic_Powheg_2017_v7"
+bkg3 = "TTbbSemiLeptonic_Powheg_2017_v9"
 bkg3_true, bkg3_pred, bkg3_jets, _, _ = initialise_sig(bkg3)
-bkg4 = "TTbbSemiLeptonic_Powheg_2018_v7"
+bkg4 = "TTbbSemiLeptonic_Powheg_2018_v9"
 bkg4_true, bkg4_pred, bkg4_jets, _, _ = initialise_sig(bkg4)
 
 # Get jets coming from the Higgs
@@ -184,7 +192,7 @@ plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.title("TTbb background", pad=15)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"TTbb_v7.png"
+name = figdir+"TTbb_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -201,7 +209,7 @@ plt.xlim(0,300)
 plt.xlabel(r"$m_{bb}$")
 plt.legend(bbox_to_anchor=(1,1))
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"norm_TTbb_split_v7.png"
+name = figdir+"norm_TTbb_split_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -214,19 +222,33 @@ plt.xlim(0,300)
 plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"sig_TTbb_v7.png"
+name = figdir+"sig_TTbb_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ TTTo BACKGROUND ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print("\nAnalysing TTTo background...\n")
 
-bkg5 = "TTToSemiLeptonic_2016_PostVFP_v7"
+bkg5 = "TTToSemiLeptonic_2016_PostVFP_v9"
 bkg5_true, bkg5_pred, bkg5_jets, _, _ = initialise_sig(bkg5)
-bkg6 = "TTToSemiLeptonic_2016_PreVFP_v7"
+print("loaded bkg5")
+bkg6 = "TTToSemiLeptonic_2016_PreVFP_v9"
 bkg6_true, bkg6_pred, bkg6_jets, _, _ = initialise_sig(bkg6)
-bkg7 = "TTToSemiLeptonic_2017_v7"
+bkg7 = "TTToSemiLeptonic_2017_v9"
 bkg7_true, bkg7_pred, bkg7_jets, _, _ = initialise_sig(bkg7)
+#bkg8 = "TTToSemiLeptonic_2018_v9"
+#bkg8_true, bkg8_pred, bkg8_jets, _, _ = initialise_sig(bkg8)
+
+"""
+basedir = "/eos/user/y/ymaidann/eth_project/Spanet_project/v2_sig_forTrainingDataset/"
+
+bkg7_pred = h5py.File(f'{basedir}/predictions/TTToSemiLeptonic_2017_v0.h5','r')
+bkg7_true = h5py.File(f'{basedir}/data/TTToSemiLeptonic_2017.h5','r')
+
+bkg7_jets = ak.from_parquet(f"{basedir}/jets/all_jets_fullRun2_TTToSemiLeptonic_2017_v3.parquet")
+(bkg7_jets,_,_,_,_,_,_,_) = ak.unzip(bkg7_jets)
+bkg7_jets = ak.with_name(bkg8_jets, name="Momentum4D")
+bkg7_jets = bkg7_jets[0:500000]
 
 basedir = "/eos/user/y/ymaidann/eth_project/Spanet_project/v2_sig_bkg"
 
@@ -245,7 +267,7 @@ bkg9_jets = ak.from_parquet(f"{basedir}/jets/all_jets_fullRun2_TTToSemiLeptonic_
 (bkg9_jets,_,_,_,_,_,_,_) = ak.unzip(bkg9_jets)
 bkg9_jets = ak.with_name(bkg9_jets, name="Momentum4D")
 bkg9_jets = bkg9_jets[1000000:2000000]
-
+"""
 # Get jets coming from the Higgs
 bkg5_ind_true, bkg5_ind_pred = get_higgs_indices(bkg5_true, bkg5_pred)
 bkg5_h_true = bkg5_jets[bkg5_ind_true]
@@ -256,26 +278,33 @@ bkg6_h_pred = bkg6_jets[bkg6_ind_pred]
 bkg7_ind_true, bkg7_ind_pred = get_higgs_indices(bkg7_true, bkg7_pred)
 bkg7_h_true = bkg7_jets[bkg7_ind_true]
 bkg7_h_pred = bkg7_jets[bkg7_ind_pred]
-bkg8_ind_true, bkg8_ind_pred = get_higgs_indices(bkg8_true, bkg8_pred)
-bkg8_h_true = bkg8_jets[bkg8_ind_true]
-bkg8_h_pred = bkg8_jets[bkg8_ind_pred]
+#bkg8_ind_true, bkg8_ind_pred = get_higgs_indices(bkg8_true, bkg8_pred)
+#bkg8_h_true = bkg8_jets[bkg8_ind_true]
+#bkg8_h_pred = bkg8_jets[bkg8_ind_pred]
+"""
 bkg9_ind_true, bkg9_ind_pred = get_higgs_indices(bkg9_true, bkg9_pred)
 bkg9_h_true = bkg9_jets[bkg9_ind_true]
 bkg9_h_pred = bkg9_jets[bkg9_ind_pred]
+"""
 
 # Delete predictions where b1 == b2
 bkg5_h_true, bkg5_h_pred = delete_bug(bkg5_h_true, bkg5_h_pred, bkg5_pred, "h")
 bkg6_h_true, bkg6_h_pred = delete_bug(bkg6_h_true, bkg6_h_pred, bkg6_pred, "h")
 bkg7_h_true, bkg7_h_pred = delete_bug(bkg7_h_true, bkg7_h_pred, bkg7_pred, "h")
-bkg8_h_true, bkg8_h_pred = delete_bug(bkg8_h_true, bkg8_h_pred, bkg8_pred, "h")
-bkg9_h_true, bkg9_h_pred = delete_bug(bkg9_h_true, bkg9_h_pred, bkg9_pred, "h")
+#bkg8_h_true, bkg8_h_pred = delete_bug(bkg8_h_true, bkg8_h_pred, bkg8_pred, "h")
+#bkg9_h_true, bkg9_h_pred = delete_bug(bkg9_h_true, bkg9_h_pred, bkg9_pred, "h")
 
+print("deleted the bug")
 bkg5_m = mass_h(bkg5_h_pred)
 bkg6_m = mass_h(bkg6_h_pred)
 bkg7_m = mass_h(bkg7_h_pred)
-bkg8_m = mass_h(bkg8_h_pred)
-bkg9_m = mass_h(bkg9_h_pred)
-ttt_bkg_m = np.hstack((bkg5_m, bkg6_m, bkg7_m, bkg8_m, bkg9_m))
+#bkg8_m = mass_h(bkg8_h_pred)
+#bkg9_m = mass_h(bkg9_h_pred)
+#ttt_bkg_m = np.hstack((bkg5_m, bkg6_m, bkg7_m, bkg8_m, bkg9_m))
+
+ttt_bkg_m = np.hstack((bkg5_m, bkg6_m, bkg7_m))
+
+print("Stacked all the masses")
 
 plt.figure() 
 plt.hist(ttt_bkg_m, bins=100, histtype='step', label="background", range=(0,300))
@@ -284,7 +313,7 @@ plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.title("TTTo background", pad=15)
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"TTTo_bkg_v7.png"
+name = figdir+"TTTo_bkg_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -292,13 +321,13 @@ plt.figure()
 plt.hist(bkg5_m, bins=100, density=True, histtype='step', range=(0,300), label="TTToSemiLeptonic_2016_PostVFP")
 plt.hist(bkg6_m, bins=100, density=True, histtype='step', range=(0,300), label="TTToSemiLeptonic_2016_PreVFP")
 plt.hist(bkg7_m, bins=100, density=True, histtype='step', range=(0,300), label="TTToSemiLeptonic_2017")
-bkg8_m = np.hstack((bkg8_m, bkg9_m))
-plt.hist(bkg8_m, bins=100, density=True, histtype='step', range=(0,300), label="TTToSemiLeptonic_2018")
+#bkg8_m = np.hstack((bkg8_m, bkg9_m))
+#plt.hist(bkg8_m, bins=100, density=True, histtype='step', range=(0,300), label="TTToSemiLeptonic_2018")
 plt.xlim(0,300)
 plt.xlabel(r"$m_{bb}$")
 plt.legend(bbox_to_anchor=(1,1))
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"norm_TTTo_split_v7.png"
+name = figdir+"norm_TTTo_split_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -312,7 +341,7 @@ plt.xlim(0,300)
 plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"sig_TTbb_TTTo_v7.png"
+name = figdir+"sig_TTbb_TTTo_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")
 
@@ -324,6 +353,6 @@ plt.xlim(0,300)
 plt.xlabel(r"$m_{bb}$")
 plt.legend()
 plt.rcParams['figure.facecolor'] = 'white'
-name = figdir+"sig_TTTo_v7.png"
+name = figdir+"sig_TTTo_v9.png"
 plt.savefig(f"{name}", transparent=False, dpi=300, bbox_inches='tight')
 print(f"Figure saved as : {name}")

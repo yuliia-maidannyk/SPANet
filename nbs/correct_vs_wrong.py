@@ -1,3 +1,7 @@
+# Creates plots of jet pt based on if the jet was predicted correctly or wrongly.
+# 2023-10-26 22:35:09
+# Yuliia Maidannyk yuliia.maidannyk@ethz.ch
+
 import h5py
 import awkward as ak
 import vector
@@ -19,8 +23,10 @@ mpl.rcParams['savefig.dpi'] = 300
 mpl.rcParams['font.size'] = 26
 mpl.rcParams['lines.linewidth'] = 1.5
 
+# Directory to save the plots
 figdir = "/eos/user/y/ymaidann/eth_project/Spanet_project/plots/"
 
+# Load files (true .h5, prediction .h5, and jets .parquet)
 df_pred = h5py.File('../predictions/0107_output_v7_matched.h5','r')
 df_true = h5py.File('../data/tth_matched_3.h5','r')
 df_jets = ak.from_parquet("/eos/user/d/dvalsecc/www/ttHbbAnalysis/training_dataset/all_jets_v6.parquet")
