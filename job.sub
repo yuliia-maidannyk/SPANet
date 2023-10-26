@@ -1,6 +1,5 @@
 universe                = docker
-#docker_image		= valsdav/pytorch-condor-gpu:0.6
-docker_image		= yuliiamaidannyk/spanet:v10
+docker_image		= yuliiamaidannyk/spanet:v12
 executable              = job_script.sh
 should_transfer_files	= YES
 when_to_transfer_output = ON_EXIT
@@ -9,6 +8,5 @@ error                   = condor_logs/error/$(ClusterId).$(ProcId).err
 log                     = condor_logs/log/$(ClusterId).$(ProcId).log
 request_gpus            = 1
 request_cpus		= 4
-+Requirements           = OpSysAndVer =?= "CentOS7"
 +JobFlavour		= "testmatch"
 queue 1
